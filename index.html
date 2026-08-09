@@ -7,8 +7,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>姐妹减脂挑战</title>
-
+<title>Jing & Esther 减脂挑战</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -52,9 +51,9 @@ margin:auto;
 
 background:white;
 
-padding:20px;
-
 border-radius:26px;
+
+padding:20px;
 
 margin-bottom:18px;
 
@@ -62,7 +61,6 @@ box-shadow:
 0 8px 25px rgba(0,0,0,.08);
 
 }
-
 
 
 h1{
@@ -74,8 +72,7 @@ font-size:28px;
 }
 
 
-
-.sub{
+.subtitle{
 
 color:#888;
 
@@ -116,7 +113,6 @@ color:#888;
 }
 
 
-
 .weight{
 
 font-size:32px;
@@ -139,7 +135,6 @@ color:#999;
 
 
 
-
 input,
 select,
 textarea,
@@ -152,7 +147,7 @@ padding:14px;
 
 margin:7px 0;
 
-border:0;
+border:none;
 
 border-radius:16px;
 
@@ -180,6 +175,8 @@ color:white;
 
 font-weight:bold;
 
+font-size:16px;
+
 }
 
 
@@ -192,24 +189,13 @@ padding:15px;
 
 border-radius:18px;
 
-line-height:1.6;
-
 }
 
-
-canvas{
-
-margin-top:10px;
-
-}
 
 
 </style>
 
-
 </head>
-
-
 
 
 <body>
@@ -221,16 +207,14 @@ margin-top:10px;
 
 <div class="card">
 
-
 <h1>
-🥑 姐妹减脂挑战
+🥑 Jing & Esther 减脂挑战
 </h1>
 
 
-<p class="sub">
-Jing & Esther · 数据同步版
+<p class="subtitle">
+Google Sheet同步版 V6.2
 </p>
-
 
 </div>
 
@@ -251,6 +235,7 @@ Jing & Esther · 数据同步版
 
 <div class="person">
 
+
 <div class="name">
 Jing
 </div>
@@ -262,11 +247,12 @@ Jing
 
 
 <div class="goal">
-目标 60kg
+目标60kg
 </div>
 
 
 </div>
+
 
 
 
@@ -285,12 +271,11 @@ Esther
 
 
 <div class="goal">
-目标 58kg
+目标58kg
 </div>
 
 
 </div>
-
 
 
 </div>
@@ -316,63 +301,68 @@ Esther
 
 <select id="name">
 
-
 <option>
 Jing
 </option>
-
 
 <option>
 Esther
 </option>
 
-
 </select>
 
 
 
-
-<input id="date"
+<input 
+id="date"
 type="date">
 
 
 
-<input id="weight"
+<input 
+id="weight"
 placeholder="体重 kg">
 
 
 
-<input id="waist"
+<input 
+id="waist"
 placeholder="腰围 cm（可选）">
 
 
 
-<input id="hip"
+<input 
+id="hip"
 placeholder="臀围 cm（可选）">
 
 
 
-<input id="steps"
+<input 
+id="steps"
 placeholder="步数（可选）">
 
 
 
-<input id="exercise"
+<input 
+id="exercise"
 placeholder="运动分钟（可选）">
 
 
 
-<input id="snack"
+<input 
+id="snack"
 placeholder="甜品 kcal（可选）">
 
 
 
-<input id="sleep"
+<input 
+id="sleep"
 placeholder="睡眠小时（可选）">
 
 
 
-<textarea id="note"
+<textarea 
+id="note"
 placeholder="今天状态（可选）"></textarea>
 
 
@@ -383,6 +373,7 @@ placeholder="今天状态（可选）"></textarea>
 ✨ 保存今日记录
 
 </button>
+
 
 
 <p id="msg"></p>
@@ -396,12 +387,11 @@ placeholder="今天状态（可选）"></textarea>
 
 
 
-
 <div class="card">
 
 
 <h3>
-📈 体重变化
+📈 体重趋势
 </h3>
 
 
@@ -426,7 +416,7 @@ placeholder="今天状态（可选）"></textarea>
 
 <div class="tip" id="advice">
 
-等待记录...
+等待数据...
 
 </div>
 
@@ -436,31 +426,34 @@ placeholder="今天状态（可选）"></textarea>
 
 
 
-
 </div>
-
-
-
-
 
 
 
 <script>
 
 
-// =======================
-// API
-// =======================
+// ============================
+// Google Apps Script API
+// ============================
 
 
 const API_URL =
+
 "https://script.google.com/macros/s/AKfycbzce3-sLOAaXBWJxWtmGs-cQDkXCTRbQRTywBAFgUrMalhf2jJc8sTiAYxRTIj2fZpL/exec";
 
 
 
 
+// ============================
+// 自动填今天日期
+// ============================
 
-date.value =
+
+document
+.getElementById("date")
+.value =
+
 new Date()
 .toISOString()
 .slice(0,10);
@@ -469,21 +462,42 @@ new Date()
 
 
 
-
-// =======================
-// 提交数据
-// =======================
-
+// ============================
+// 提交数据到 Google Sheet
+// ============================
 
 
 function submitData(){
 
 
 
-if(
-!date.value ||
-!weight.value
+const name =
+document
+.getElementById("name")
+.value;
 
+
+
+const date =
+document
+.getElementById("date")
+.value;
+
+
+
+const weight =
+document
+.getElementById("weight")
+.value;
+
+
+
+
+// 必填检查
+
+if(
+date === "" ||
+weight === ""
 ){
 
 alert(
@@ -497,28 +511,58 @@ return;
 
 
 
-let data={
+const data = {
 
 
-name:name.value,
+name:name,
 
-date:date.value,
 
-weight:weight.value,
+date:date,
 
-waist:waist.value,
 
-hip:hip.value,
+weight:weight,
 
-steps:steps.value,
 
-exercise:exercise.value,
+waist:
+document
+.getElementById("waist")
+.value,
 
-snack:snack.value,
 
-sleep:sleep.value,
+hip:
+document
+.getElementById("hip")
+.value,
 
-note:note.value
+
+steps:
+document
+.getElementById("steps")
+.value,
+
+
+exercise:
+document
+.getElementById("exercise")
+.value,
+
+
+snack:
+document
+.getElementById("snack")
+.value,
+
+
+sleep:
+document
+.getElementById("sleep")
+.value,
+
+
+note:
+document
+.getElementById("note")
+.value
 
 
 };
@@ -527,26 +571,80 @@ note:note.value
 
 
 
-fetch(API_URL,{
+fetch(
+API_URL,
+{
 
 method:"POST",
 
 body:
 JSON.stringify(data)
 
-})
+}
 
-.then(()=>{
+)
+
+.then(
+response =>
+response.text()
+
+)
+
+.then(
+
+result=>{
 
 
-msg.innerHTML=
+document
+.getElementById("msg")
+.innerHTML =
+
 "✅ 保存成功";
+
+
+document
+.getElementById("advice")
+.innerHTML =
+
+Number(data.snack)>300
+
+?
+
+"🍰 今天甜品稍多，不需要补偿节食，明天正常吃即可。"
+
+:
+
+"🌟 今日记录很好，继续保持！";
+
 
 
 loadData();
 
 
-});
+}
+
+)
+
+
+.catch(
+
+error=>{
+
+
+console.log(error);
+
+
+document
+.getElementById("msg")
+.innerHTML =
+
+"❌ 保存失败，请检查API";
+
+
+}
+
+
+);
 
 
 
@@ -559,10 +657,9 @@ loadData();
 
 
 
-// =======================
-// 读取 Sheet
-// =======================
-
+// ============================
+// 从 Google Sheet 读取
+// ============================
 
 
 async function loadData(){
@@ -572,85 +669,143 @@ async function loadData(){
 try{
 
 
-let res =
+const response =
+
 await fetch(API_URL);
 
 
 
-let data =
-await res.json();
+const data =
 
+await response.json();
+
+
+
+
+console.log(
+"Sheet数据:",
+data
+);
 
 
 
 updateDashboard(data);
 
 
-
 drawChart(data);
 
 
 
-}catch(e){
+}
+
+catch(error){
 
 
-console.log(e);
+console.log(
+"读取失败:",
+error
+);
+
+
+}
 
 
 }
 
 
 
-}
 
 
 
 
 
 
-
-// =======================
-// 首页数据
-// =======================
-
+// ============================
+// 更新首页体重
+// ============================
 
 
 function updateDashboard(data){
 
 
 
-let jing =
-data
-.filter(
-x=>x.name=="Jing"
-)
-.pop();
+const jingData =
+
+data.filter(
+
+item=>
+
+item.name==="Jing"
+
+);
 
 
 
-let esther =
-data
-.filter(
-x=>x.name=="Esther"
-)
-.pop();
+const estherData =
+
+data.filter(
+
+item=>
+
+item.name==="Esther"
+
+);
 
 
 
 
-if(jing){
 
-jingWeight.innerHTML =
-jing.weight+" kg";
+
+if(jingData.length>0){
+
+
+const latest =
+
+jingData[
+jingData.length-1
+];
+
+
+
+document
+.getElementById("jingWeight")
+.innerHTML =
+
+latest.weight
++
+" kg";
+
 
 }
 
 
 
-if(esther){
 
-estherWeight.innerHTML =
-esther.weight+" kg";
+
+
+if(estherData.length>0){
+
+
+const latest =
+
+estherData[
+estherData.length-1
+];
+
+
+
+document
+.getElementById("estherWeight")
+.innerHTML =
+
+latest.weight
++
+" kg";
+
+
+}
+
+
 
 }
 
@@ -658,15 +813,16 @@ esther.weight+" kg";
 
 
 
-}
 
 
 
 
+// ============================
+// 体重曲线
+// ============================
 
-// =======================
-// 图表
-// =======================
+
+let weightChart;
 
 
 
@@ -674,23 +830,47 @@ function drawChart(data){
 
 
 
-let jing =
+const jing =
+
 data.filter(
-x=>x.name=="Jing"
+
+x=>
+
+x.name==="Jing"
+
 );
 
 
 
-let esther =
+const esther =
+
 data.filter(
-x=>x.name=="Esther"
+
+x=>
+
+x.name==="Esther"
+
 );
 
 
 
+
+
+if(weightChart){
+
+weightChart.destroy();
+
+}
+
+
+
+
+weightChart =
 
 new Chart(
-document.getElementById("chart"),
+
+document
+.getElementById("chart"),
 
 {
 
@@ -698,12 +878,16 @@ document.getElementById("chart"),
 type:"line",
 
 
+
 data:{
 
 
 labels:
+
 jing.map(
+
 x=>x.date
+
 ),
 
 
@@ -716,11 +900,15 @@ datasets:[
 label:"Jing",
 
 data:
+
 jing.map(
-x=>x.weight
+
+x=>Number(x.weight)
+
 )
 
 },
+
 
 
 {
@@ -728,8 +916,11 @@ x=>x.weight
 label:"Esther",
 
 data:
+
 esther.map(
-x=>x.weight
+
+x=>Number(x.weight)
+
 )
 
 }
@@ -738,23 +929,50 @@ x=>x.weight
 ]
 
 
+},
+
+
+
+
+options:{
+
+
+responsive:true,
+
+
+scales:{
+
+
+y:{
+
+
+beginAtZero:false
+
+
+}
+
+
+}
+
+
 }
 
 
 
 }
-
 
 );
 
 
-
 }
 
 
 
 
 
+
+
+// 页面打开自动读取
 
 loadData();
 
