@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>姐妹减脂挑战 V6</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+
+body{
+
+margin:0;
+padding:18px;
+
+background:
+linear-gradient(135deg,#fff7f2,#f5f2ff);
+
+font-family:
+-apple-system,
+BlinkMacSystemFont,
+"PingFang SC",
+sans-serif;
+
+color:#333;
+
+}
+
+
+.container{
+
+max-width:520px;
+margin:auto;
+
+}
+
+
+
+.card{
+
+background:white;
+
+border-radius:26px;
+
+padding:20px;
+
+margin-bottom:18px;
+
+box-shadow:
+0 8px 25px rgba(0,0,0,.08);
+
+}
+
+
+
+h1{
+
+font-size:28px;
+
+margin:0;
+
+}
+
+
+
+.subtitle{
+
+color:#888;
+
+}
+
+
+
+.grid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:12px;
+
+}
+
+
+
+.person{
+
+background:#fff7f5;
+
+padding:18px;
+
+border-radius:20px;
+
+text-align:center;
+
+}
+
+
+
+.name{
+
+color:#777;
+
+}
+
+
+
+.weight{
+
+font-size:32px;
+
+font-weight:800;
+
+margin:8px;
+
+}
+
+
+
+.goal{
+
+font-size:14px;
+
+color:#999;
+
+}
+
+
+
+input,
+select,
+textarea,
+button{
+
+
+width:100%;
+
+padding:14px;
+
+margin:7px 0;
+
+border:none;
+
+border-radius:16px;
+
+font-size:15px;
+
+background:#f5f5f5;
+
+
+}
+
+
+
+textarea{
+
+height:90px;
+
+}
+
+
+
+button{
+
+background:#ff8f8f;
+
+color:white;
+
+font-weight:bold;
+
+}
+
+
+
+.food button{
+
+background:#ffe7dc;
+
+color:#8b5144;
+
+}
+
+
+
+.tip{
+
+background:#fff4dc;
+
+padding:15px;
+
+border-radius:18px;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+
+<body>
+
+
+<div class="container">
+
+
+
+<div class="card">
+
+
+<h1>
+🥑 姐妹减脂挑战
+</h1>
+
+
+<p class="subtitle">
+Google Sheet实时同步版 V6
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+📊 当前状态
+</h3>
+
+
+<div class="grid">
+
+
+<div class="person">
+
+<div class="name">
+Anne
+</div>
+
+
+<div class="weight"
+id="anneWeight">
+
+-- kg
+
+</div>
+
+
+<div class="goal">
+目标60kg
+</div>
+
+
+</div>
+
+
+
+<div class="person">
+
+
+<div class="name">
+表姐
+</div>
+
+
+<div class="weight"
+id="sisWeight">
+
+-- kg
+
+</div>
+
+
+<div class="goal">
+目标58kg
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+📝 今日记录
+</h3>
+
+
+<select id="name">
+
+<option>
+Anne
+</option>
+
+<option>
+表姐
+</option>
+
+</select>
+
+
+<input id="date" type="date">
+
+
+<input id="weight" placeholder="体重 kg">
+
+
+<input id="waist" placeholder="腰围 cm">
+
+
+<input id="hip" placeholder="臀围 cm">
+
+
+<input id="steps" placeholder="步数">
+
+
+<input id="exercise" placeholder="运动分钟">
+
+
+<input id="snack" placeholder="甜品 kcal">
+
+
+<input id="sleep" placeholder="睡眠小时">
+
+
+<textarea id="note"
+placeholder="今天状态">
+
+</textarea>
+
+
+<button onclick="submitData()">
+
+✨ 提交并同步
+
+</button>
+
+
+<p id="msg"></p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+📈 体重趋势
+</h3>
+
+
+<canvas id="chart">
+
+</canvas>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+
+<h3>
+🤖 今日建议
+</h3>
+
+
+<div class="tip" id="advice">
+
+等待数据...
+
+</div>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<script>
+
+
+// =======================
+// 改这里
+// =======================
+
+
+const API_URL =
+"你的Google Apps Script Web App URL";
+
+
+
+
+
+date.value =
+new Date()
+.toISOString()
+.slice(0,10);
+
+
+
+
+
+
+
+// =======================
+// 写入 Sheet
+// =======================
+
+
+function submitData(){
+
+
+
+let data={
+
+
+name:
+name.value,
+
+
+date:
+date.value,
+
+
+weight:
+weight.value,
+
+
+waist:
+waist.value,
+
+
+hip:
+hip.value,
+
+
+steps:
+steps.value,
+
+
+exercise:
+exercise.value,
+
+
+snack:
+snack.value,
+
+
+sleep:
+sleep.value,
+
+
+note:
+note.value
+
+
+};
+
+
+
+
+fetch(API_URL,{
+
+method:"POST",
+
+body:
+JSON.stringify(data)
+
+})
+
+.then(()=>{
+
+
+msg.innerHTML=
+"✅ 已保存";
+
+
+loadData();
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// =======================
+// 从 Sheet 读取
+// =======================
+
+
+async function loadData(){
+
+
+let res =
+await fetch(API_URL);
+
+
+
+let data =
+await res.json();
+
+
+
+console.log(data);
+
+
+
+updateDashboard(data);
+
+
+drawChart(data);
+
+
+}
+
+
+
+
+
+
+
+
+// =======================
+// 更新首页数字
+// =======================
+
+
+function updateDashboard(data){
+
+
+
+let anne =
+data
+.filter(
+x=>x.name=="Anne"
+)
+.pop();
+
+
+
+let sister =
+data
+.filter(
+x=>x.name=="表姐"
+)
+.pop();
+
+
+
+if(anne){
+
+anneWeight.innerHTML =
+anne.weight+" kg";
+
+}
+
+
+
+if(sister){
+
+sisWeight.innerHTML =
+sister.weight+" kg";
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+// =======================
+// 画真实曲线
+// =======================
+
+
+function drawChart(data){
+
+
+
+let anne =
+data.filter(
+x=>x.name=="Anne"
+);
+
+
+
+let sister =
+data.filter(
+x=>x.name=="表姐"
+);
+
+
+
+
+new Chart(
+
+document
+.getElementById("chart"),
+
+{
+
+
+type:"line",
+
+
+data:{
+
+
+labels:
+anne.map(
+x=>x.date
+),
+
+
+
+datasets:[
+
+
+{
+
+label:"Anne",
+
+data:
+anne.map(
+x=>x.weight
+)
+
+},
+
+
+
+{
+
+label:"表姐",
+
+data:
+sister.map(
+x=>x.weight
+)
+
+}
+
+
+]
+
+}
+
+
+}
+
+
+);
+
+
+
+}
+
+
+
+
+
+loadData();
+
+
+</script>
+
+
+
+</body>
+
+</html>
