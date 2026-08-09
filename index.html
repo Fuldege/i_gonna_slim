@@ -7,7 +7,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>姐妹减脂挑战 V6</title>
+<title>姐妹减脂挑战</title>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -25,7 +26,7 @@ margin:0;
 padding:18px;
 
 background:
-linear-gradient(135deg,#fff7f2,#f5f2ff);
+linear-gradient(135deg,#fff7f2,#f4f0ff);
 
 font-family:
 -apple-system,
@@ -51,9 +52,9 @@ margin:auto;
 
 background:white;
 
-border-radius:26px;
-
 padding:20px;
+
+border-radius:26px;
 
 margin-bottom:18px;
 
@@ -66,15 +67,15 @@ box-shadow:
 
 h1{
 
-font-size:28px;
-
 margin:0;
+
+font-size:28px;
 
 }
 
 
 
-.subtitle{
+.sub{
 
 color:#888;
 
@@ -98,9 +99,9 @@ gap:12px;
 
 background:#fff7f5;
 
-padding:18px;
+border-radius:22px;
 
-border-radius:20px;
+padding:18px;
 
 text-align:center;
 
@@ -110,7 +111,7 @@ text-align:center;
 
 .name{
 
-color:#777;
+color:#888;
 
 }
 
@@ -138,6 +139,7 @@ color:#999;
 
 
 
+
 input,
 select,
 textarea,
@@ -150,14 +152,13 @@ padding:14px;
 
 margin:7px 0;
 
-border:none;
+border:0;
 
 border-radius:16px;
 
-font-size:15px;
-
 background:#f5f5f5;
 
+font-size:15px;
 
 }
 
@@ -183,16 +184,6 @@ font-weight:bold;
 
 
 
-.food button{
-
-background:#ffe7dc;
-
-color:#8b5144;
-
-}
-
-
-
 .tip{
 
 background:#fff4dc;
@@ -201,14 +192,23 @@ padding:15px;
 
 border-radius:18px;
 
+line-height:1.6;
+
 }
 
+
+canvas{
+
+margin-top:10px;
+
+}
 
 
 </style>
 
 
 </head>
+
 
 
 
@@ -227,8 +227,8 @@ border-radius:18px;
 </h1>
 
 
-<p class="subtitle">
-Google Sheet实时同步版 V6
+<p class="sub">
+Jing & Esther · 数据同步版
 </p>
 
 
@@ -242,7 +242,7 @@ Google Sheet实时同步版 V6
 
 
 <h3>
-📊 当前状态
+📊 当前体重
 </h3>
 
 
@@ -252,24 +252,22 @@ Google Sheet实时同步版 V6
 <div class="person">
 
 <div class="name">
-Anne
+Jing
 </div>
 
 
-<div class="weight"
-id="anneWeight">
-
+<div class="weight" id="jingWeight">
 -- kg
-
 </div>
 
 
 <div class="goal">
-目标60kg
+目标 60kg
 </div>
 
 
 </div>
+
 
 
 
@@ -277,20 +275,17 @@ id="anneWeight">
 
 
 <div class="name">
-表姐
+Esther
 </div>
 
 
-<div class="weight"
-id="sisWeight">
-
+<div class="weight" id="estherWeight">
 -- kg
-
 </div>
 
 
 <div class="goal">
-目标58kg
+目标 58kg
 </div>
 
 
@@ -302,6 +297,7 @@ id="sisWeight">
 
 
 </div>
+
 
 
 
@@ -317,52 +313,74 @@ id="sisWeight">
 </h3>
 
 
+
 <select id="name">
 
-<option>
-Anne
-</option>
 
 <option>
-表姐
+Jing
 </option>
+
+
+<option>
+Esther
+</option>
+
 
 </select>
 
 
-<input id="date" type="date">
 
 
-<input id="weight" placeholder="体重 kg">
+<input id="date"
+type="date">
 
 
-<input id="waist" placeholder="腰围 cm">
+
+<input id="weight"
+placeholder="体重 kg">
 
 
-<input id="hip" placeholder="臀围 cm">
+
+<input id="waist"
+placeholder="腰围 cm（可选）">
 
 
-<input id="steps" placeholder="步数">
+
+<input id="hip"
+placeholder="臀围 cm（可选）">
 
 
-<input id="exercise" placeholder="运动分钟">
+
+<input id="steps"
+placeholder="步数（可选）">
 
 
-<input id="snack" placeholder="甜品 kcal">
+
+<input id="exercise"
+placeholder="运动分钟（可选）">
 
 
-<input id="sleep" placeholder="睡眠小时">
+
+<input id="snack"
+placeholder="甜品 kcal（可选）">
+
+
+
+<input id="sleep"
+placeholder="睡眠小时（可选）">
+
 
 
 <textarea id="note"
-placeholder="今天状态">
+placeholder="今天状态（可选）"></textarea>
 
-</textarea>
+
 
 
 <button onclick="submitData()">
 
-✨ 提交并同步
+✨ 保存今日记录
 
 </button>
 
@@ -378,17 +396,16 @@ placeholder="今天状态">
 
 
 
+
 <div class="card">
 
 
 <h3>
-📈 体重趋势
+📈 体重变化
 </h3>
 
 
-<canvas id="chart">
-
-</canvas>
+<canvas id="chart"></canvas>
 
 
 </div>
@@ -403,13 +420,13 @@ placeholder="今天状态">
 
 
 <h3>
-🤖 今日建议
+🤖 今日反馈
 </h3>
 
 
 <div class="tip" id="advice">
 
-等待数据...
+等待记录...
 
 </div>
 
@@ -419,8 +436,8 @@ placeholder="今天状态">
 
 
 
-</div>
 
+</div>
 
 
 
@@ -432,7 +449,7 @@ placeholder="今天状态">
 
 
 // =======================
-// 改这里
+// API
 // =======================
 
 
@@ -453,60 +470,59 @@ new Date()
 
 
 
+// =======================
+// 提交数据
+// =======================
 
-// =======================
-// 写入 Sheet
-// =======================
 
 
 function submitData(){
 
 
 
+if(
+!date.value ||
+!weight.value
+
+){
+
+alert(
+"请填写日期和体重！"
+);
+
+return;
+
+}
+
+
+
+
 let data={
 
 
-name:
-name.value,
+name:name.value,
 
+date:date.value,
 
-date:
-date.value,
+weight:weight.value,
 
+waist:waist.value,
 
-weight:
-weight.value,
+hip:hip.value,
 
+steps:steps.value,
 
-waist:
-waist.value,
+exercise:exercise.value,
 
+snack:snack.value,
 
-hip:
-hip.value,
+sleep:sleep.value,
 
-
-steps:
-steps.value,
-
-
-exercise:
-exercise.value,
-
-
-snack:
-snack.value,
-
-
-sleep:
-sleep.value,
-
-
-note:
-note.value
+note:note.value
 
 
 };
+
 
 
 
@@ -524,7 +540,7 @@ JSON.stringify(data)
 
 
 msg.innerHTML=
-"✅ 已保存";
+"✅ 保存成功";
 
 
 loadData();
@@ -543,13 +559,17 @@ loadData();
 
 
 
+// =======================
+// 读取 Sheet
+// =======================
 
-// =======================
-// 从 Sheet 读取
-// =======================
 
 
 async function loadData(){
+
+
+
+try{
 
 
 let res =
@@ -562,14 +582,23 @@ await res.json();
 
 
 
-console.log(data);
-
-
 
 updateDashboard(data);
 
 
+
 drawChart(data);
+
+
+
+}catch(e){
+
+
+console.log(e);
+
+
+}
+
 
 
 }
@@ -580,91 +609,88 @@ drawChart(data);
 
 
 
+// =======================
+// 首页数据
+// =======================
 
-// =======================
-// 更新首页数字
-// =======================
 
 
 function updateDashboard(data){
 
 
 
-let anne =
+let jing =
 data
 .filter(
-x=>x.name=="Anne"
+x=>x.name=="Jing"
 )
 .pop();
 
 
 
-let sister =
+let esther =
 data
 .filter(
-x=>x.name=="表姐"
+x=>x.name=="Esther"
 )
 .pop();
 
 
 
-if(anne){
 
-anneWeight.innerHTML =
-anne.weight+" kg";
+if(jing){
 
-}
-
-
-
-if(sister){
-
-sisWeight.innerHTML =
-sister.weight+" kg";
+jingWeight.innerHTML =
+jing.weight+" kg";
 
 }
 
 
 
+if(esther){
+
+estherWeight.innerHTML =
+esther.weight+" kg";
+
 }
 
 
 
 
 
+}
 
 
 
 
 
 // =======================
-// 画真实曲线
+// 图表
 // =======================
+
 
 
 function drawChart(data){
 
 
 
-let anne =
+let jing =
 data.filter(
-x=>x.name=="Anne"
+x=>x.name=="Jing"
 );
 
 
 
-let sister =
+let esther =
 data.filter(
-x=>x.name=="表姐"
+x=>x.name=="Esther"
 );
 
 
 
 
 new Chart(
-
-document
-.getElementById("chart"),
+document.getElementById("chart"),
 
 {
 
@@ -676,7 +702,7 @@ data:{
 
 
 labels:
-anne.map(
+jing.map(
 x=>x.date
 ),
 
@@ -687,23 +713,22 @@ datasets:[
 
 {
 
-label:"Anne",
+label:"Jing",
 
 data:
-anne.map(
+jing.map(
 x=>x.weight
 )
 
 },
 
 
-
 {
 
-label:"表姐",
+label:"Esther",
 
 data:
-sister.map(
+esther.map(
 x=>x.weight
 )
 
@@ -712,7 +737,9 @@ x=>x.weight
 
 ]
 
+
 }
+
 
 
 }
@@ -728,11 +755,12 @@ x=>x.weight
 
 
 
+
 loadData();
 
 
-</script>
 
+</script>
 
 
 </body>
