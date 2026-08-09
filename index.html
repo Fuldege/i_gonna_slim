@@ -3,60 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Jing & Esther 减脂挑战 V6.3</title>
+<title>Jing & Esther 减脂挑战 V7</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#fff7f2;padding:20px}
-.card{background:#fff;border-radius:20px;padding:20px;margin-bottom:15px}
-input,select,textarea,button{width:100%;padding:12px;margin:6px 0;border-radius:12px;border:0;background:#f2f2f2}
+body{margin:0;padding:18px;background:linear-gradient(135deg,#fff7f2,#f5f2ff);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#333}
+.container{max-width:600px;margin:auto}
+.card{background:#fff;border-radius:24px;padding:20px;margin-bottom:18px;box-shadow:0 8px 25px #0001}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.person{background:#fff5f3;border-radius:20px;padding:16px;text-align:center}
+.num{font-size:32px;font-weight:800;margin:8px}
+input,select,textarea,button{width:100%;padding:13px;margin:6px 0;border:0;border-radius:15px;background:#f3f3f3;font-size:15px}
+textarea{height:80px}
 button{background:#ff8f8f;color:white;font-weight:bold}
+.small{color:#888}
 </style>
 </head>
 <body>
+<div class="container">
+
 <div class="card">
 <h1>🥑 Jing & Esther 减脂挑战</h1>
-<p id="status">双向同步版</p>
+<p class="small">饮食 · 运动 · 体重同步记录</p>
 </div>
+
 <div class="card">
-<h3>当前体重</h3>
-<p>Jing: <b id="jing">--</b> kg</p>
-<p>Esther: <b id="esther">--</b> kg</p>
+<h3>📊 当前体重</h3>
+<div class="grid">
+<div class="person">Jing<div class="num" id="jingWeight">--</div>kg</div>
+<div class="person">Esther<div class="num" id="estherWeight">--</div>kg</div>
 </div>
+</div>
+
 <div class="card">
-<select id="name"><option>Jing</option><option>Esther</option></select>
+<h3>📝 今日记录</h3>
+
+<select id="name">
+<option>Jing</option>
+<option>Esther</option>
+</select>
+
 <input id="date" type="date">
 <input id="weight" placeholder="体重 kg（必填）">
-<input id="waist" placeholder="腰围">
-<input id="hip" placeholder="臀围">
-<input id="steps" placeholder="步数">
+
+<input id="waist" placeholder="腰围 cm">
+<input id="hip" placeholder="臀围 cm">
+<input id="thigh" placeholder="大腿 cm">
+<input id="calf" placeholder="小腿 cm">
+<input id="arm" placeholder="大臂 cm">
+
+<input id="breakfast" placeholder="早餐">
+<input id="lunch" placeholder="午餐">
+<input id="dinner" placeholder="晚餐">
+<input id="afternoon" placeholder="下午茶">
+
+<input id="dessert" placeholder="甜品 kcal">
+<input id="snack" placeholder="零食 kcal">
+
 <input id="exercise" placeholder="运动分钟">
-<input id="snack" placeholder="甜品kcal">
-<input id="sleep" placeholder="睡眠">
+<input id="steps" placeholder="步数">
+
+<input id="sleep" placeholder="睡眠小时">
+<input id="stress" placeholder="压力 1-10">
+
 <textarea id="note" placeholder="备注"></textarea>
-<button id="save">保存今日记录</button>
+
+<button id="save">✨ 保存今日记录</button>
 <p id="msg"></p>
 </div>
+
+<div class="card">
+<h3>📈 体重趋势</h3>
+<canvas id="chart"></canvas>
+</div>
+
+<div class="card">
+<h3>🤖 今日反馈</h3>
+<p id="feedback">等待数据...</p>
+</div>
+
+</div>
+
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbw1CsYf7TMZJBkUdzcpjqnUD2MaYqopnHnC0cGJFI1RSWYrGxapxEZI3TD-j9Ee-Tbx/exec";
-date.value=new Date().toISOString().slice(0,10);
+
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+
+let chart;
+
 async function loadData(){
 try{
-let r=await fetch(API_URL);
-let d=await r.json();
-let j=d.filter(x=>x.name=="Jing").pop();
-let e=d.filter(x=>x.name=="Esther").pop();
-if(j) jing.innerHTML=j.weight;
-if(e) esther.innerHTML=e.weight;
-}catch(err){console.log(err)}
+const res=await fetch(API_URL);
+const data=await res.json();
+
+const jing=data.filter(x=>x.name==="Jing").pop();
+const esther=data.filter(x=>x.name==="Esther").pop();
+
+if(jing) document.getElementById("jingWeight").innerText=jing.weight;
+if(esther) document.getElementById("estherWeight").innerText=esther.weight;
+
+if(chart) chart.destroy();
+
+chart=new Chart(document.getElementById("chart"),{
+type:"line",
+data:{
+labels:data.map(x=>x.date),
+datasets:[
+{label:"Jing",data:data.filter(x=>x.name==="Jing").map(x=>x.weight)},
+{label:"Esther",data:data.filter(x=>x.name==="Esther").map(x=>x.weight)}
+]
 }
-save.onclick=async()=>{
-if(!date.value||!weight.value){alert("请填写日期和体重");return;}
-let data={name:name.value,date:date.value,weight:weight.value,waist:waist.value,hip:hip.value,steps:steps.value,exercise:exercise.value,snack:snack.value,sleep:sleep.value,note:note.value};
+});
+
+}catch(e){console.log(e)}
+}
+
+
+document.getElementById("save").onclick=async function(){
+
+const data={
+name:document.getElementById("name").value,
+date:document.getElementById("date").value,
+weight:document.getElementById("weight").value,
+waist:document.getElementById("waist").value,
+hip:document.getElementById("hip").value,
+thigh:document.getElementById("thigh").value,
+calf:document.getElementById("calf").value,
+arm:document.getElementById("arm").value,
+breakfast:document.getElementById("breakfast").value,
+lunch:document.getElementById("lunch").value,
+dinner:document.getElementById("dinner").value,
+afternoon:document.getElementById("afternoon").value,
+dessert:document.getElementById("dessert").value,
+snack:document.getElementById("snack").value,
+exercise:document.getElementById("exercise").value,
+steps:document.getElementById("steps").value,
+sleep:document.getElementById("sleep").value,
+stress:document.getElementById("stress").value,
+note:document.getElementById("note").value
+};
+
+if(!data.date||!data.weight){
+alert("请填写日期和体重");
+return;
+}
+
 try{
 await fetch(API_URL,{method:"POST",body:JSON.stringify(data)});
-msg.innerHTML="✅ 保存成功";
+document.getElementById("msg").innerText="✅ 保存成功";
 loadData();
-}catch(e){msg.innerHTML="❌ 保存失败，请检查API";}
+}catch(e){
+document.getElementById("msg").innerText="❌ 保存失败";
+}
+
 };
+
 loadData();
 </script>
 </body>
