@@ -1238,34 +1238,46 @@ async function deleteRecord(date, person) {
 // =============================================
 $('save').addEventListener('click', async () => {
   const weight = parseFloat($('weight').value);
-  const date = $('date').value;
 
-  if (!date || isNaN(weight)) {
+  const nameValue = $('name').value;
+  const dateValue = $('date').value;
+
+  if (!dateValue || isNaN(weight)) {
     showToast('⚠️ 请填写日期和体重（必填）');
     return;
   }
 
+  function n(id) {
+    const v = parseFloat($(id).value);
+    return isNaN(v) ? '' : v;
+  }
+  function s(id) { return ($(id).value || '').trim(); }
+  function i(id) {
+    const v = parseInt($(id).value);
+    return isNaN(v) ? '' : v;
+  }
+
   const data = {
     id: editingId || undefined,
-    name: $('name').value,
-    date: date,
+    name: nameValue,
+    date: dateValue,
     weight: weight,
-    waist: parseFloat($('waist').value) || null,
-    hip: parseFloat($('hip').value) || null,
-    thigh: parseFloat($('thigh').value) || null,
-    calf: parseFloat($('calf').value) || null,
-    arm: parseFloat($('arm').value) || null,
-    breakfast: $('breakfast').value || '',
-    lunch: $('lunch').value || '',
-    dinner: $('dinner').value || '',
-    afternoon: $('afternoon').value || '',
-    dessert: parseFloat($('dessert').value) || null,
-    snack: parseFloat($('snack').value) || null,
-    exercise: parseFloat($('exercise').value) || null,
-    steps: parseInt($('steps').value) || null,
-    sleep: parseFloat($('sleep').value) || null,
-    stress: parseInt($('stress').value) || null,
-    note: $('note').value || ''
+    waist: n('waist'),
+    hip: n('hip'),
+    thigh: n('thigh'),
+    calf: n('calf'),
+    arm: n('arm'),
+    breakfast: s('breakfast'),
+    lunch: s('lunch'),
+    dinner: s('dinner'),
+    afternoon: s('afternoon'),
+    dessert: n('dessert'),
+    snack: n('snack'),
+    exercise: n('exercise'),
+    steps: i('steps'),
+    sleep: n('sleep'),
+    stress: i('stress'),
+    note: s('note')
   };
 
   const saveBtn = $('save');
