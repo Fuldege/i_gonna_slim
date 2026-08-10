@@ -576,7 +576,7 @@ body {
       <button class="chart-tab time-tab" data-range="all">全部</button>
     </div>
 
-    <canvas id="chart" height="280"></canvas>
+    <div style="position:relative;height:200px"><canvas id="chart"></canvas></div>
   </div>
 
   <!-- 统计汇总 -->
@@ -981,7 +981,7 @@ function renderChart() {
   const labels = [...new Set(filtered.map(d => d.date))].sort();
 
   function createGradient(ctx, color1, color2) {
-    const g = ctx.createLinearGradient(0, 0, 0, 280);
+    const g = ctx.createLinearGradient(0, 0, 0, 160);
     g.addColorStop(0, color1);
     g.addColorStop(1, color2);
     return g;
@@ -1115,7 +1115,6 @@ function renderTrendSummary(filtered) {
   summary[3].querySelector('.hs-val').textContent = avgSleep;
 }
 
-// 图表选项卡
 document.querySelectorAll('#chartTypeTabs .chart-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('#chartTypeTabs .chart-tab').forEach(t => t.classList.remove('active'));
