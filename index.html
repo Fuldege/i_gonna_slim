@@ -398,7 +398,7 @@ body {
     </div>
   </div>
 
-  <!-- 🔥 今日热量摄入（概览页） -->
+  <!-- 今日热量摄入 -->
   <div class="card" style="margin-top:14px">
     <div class="card-header"><span class="icon">🔥</span>今日热量摄入</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -657,7 +657,8 @@ async function renderCalories() {
         body: JSON.stringify({ action: 'analyze_food', text: foodText })
       });
       const result = await resp.json();
-      if (result.totalCal != null) {
+      // 仅当 AI 无报错且返回有效数值时才覆盖本地估算，防止 API 异常把结果刷成 0
+      if (!result.error && result.totalCal != null && result.totalCal > 0) {
         _calCache[cacheKey] = result.totalCal;
         calEl.textContent = result.totalCal;
         const parts = [];
@@ -760,9 +761,7 @@ function showToast(msg, type = '') {
   setTimeout(() => { t.className = 'toast'; }, 2000);
 }
 
-// =============================================
 // 底部导航
-// =============================================
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -775,9 +774,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
   });
 });
 
-// =============================================
 // 人物选择按钮
-// =============================================
 document.querySelectorAll('.person-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.person-btn').forEach(b => {
@@ -793,9 +790,7 @@ document.querySelectorAll('.person-btn').forEach(btn => {
   });
 });
 
-// =============================================
 // 目标设定
-// =============================================
 function loadGoals() {
   const goals = JSON.parse(localStorage.getItem('fitGoals') || '{}');
   if (goals.jingWeight) $('goalJingWeight').value = goals.jingWeight;
@@ -815,9 +810,7 @@ $('saveGoal').addEventListener('click', () => {
   renderOverview();
 });
 
-// =============================================
 // 数据加载
-// =============================================
 async function fetchData() {
   try {
     const res = await fetch(API_URL);
@@ -830,9 +823,7 @@ async function fetchData() {
   }
 }
 
-// =============================================
 // 概览页渲染
-// =============================================
 function getLatestForPerson(name) {
   const records = allData.filter(d => d.name === name).sort((a, b) => b.date.localeCompare(a.date));
   return records[0] || null;
@@ -925,9 +916,7 @@ function renderOverview() {
   renderCalories();
 }
 
-// =============================================
 // 智能反馈引擎
-// =============================================
 function renderFeedback(jingLatest, estherLatest, weekJing, weekEsther, goals) {
   const items = [];
   if (!jingLatest && !estherLatest) {
@@ -1008,9 +997,7 @@ function renderFeedback(jingLatest, estherLatest, weekJing, weekEsther, goals) {
   ).join('');
 }
 
-// =============================================
 // 徽章系统
-// =============================================
 function renderBadges(jingLatest, estherLatest) {
   const badges = [
     { id: 'first_record', emoji: '📝', name: '初次记录', desc: '完成第一次数据记录', earned: allData.length > 0 },
@@ -1037,9 +1024,7 @@ function checkWeightLoss(target) {
   return false;
 }
 
-// =============================================
 // 本周对决
-// =============================================
 function renderVS(weekJing, weekEsther) {
   const jingEx = weekJing.reduce((s, d) => s + (d.exercise || 0), 0);
   const estherEx = weekEsther.reduce((s, d) => s + (d.exercise || 0), 0);
@@ -1059,9 +1044,7 @@ function renderVS(weekJing, weekEsther) {
   else $('vsLabel').textContent = `两人本周运动量持平，各 ${jingEx} 分钟 🤝`;
 }
 
-// =============================================
 // 图表渲染
-// =============================================
 function renderChart() {
   if (allData.length === 0 || !$('chart')) return;
   const ctx = $('chart').getContext('2d');
@@ -1171,9 +1154,7 @@ document.querySelectorAll('#timeTabs .chart-tab').forEach(tab => {
   });
 });
 
-// =============================================
 // 历史记录
-// =============================================
 async function renderHistory() {
   if (allData.length === 0) await fetchData();
   const person = $('historyPerson').value;
@@ -1212,9 +1193,7 @@ $('historyPerson').addEventListener('change', renderHistory);
 $('historyPeriod').addEventListener('change', renderHistory);
 $('refreshHistory').addEventListener('click', async () => { await fetchData(); renderHistory(); renderOverview(); });
 
-// =============================================
 // 编辑 & 删除记录
-// =============================================
 async function editRecord(date, person) {
   const records = allData.filter(d => d.date === date && d.name === person).sort((a,b)=>{
     const ta = a.id || a.time || '';
@@ -1268,9 +1247,7 @@ async function deleteRecord(date, person) {
   } catch (e) { showToast('删除失败，请重试'); }
 }
 
-// =============================================
 // 保存记录
-// =============================================
 $('save').addEventListener('click', async () => {
   const weight = parseFloat($('weight').value);
   const nameValue = $('name').value;
@@ -1300,21 +1277,19 @@ $('save').addEventListener('click', async () => {
       if ($(id)) $(id).value = '';
     });
     $('date').value = new Date().toISOString().slice(0, 10);
+    // 清空热量缓存，下次概览页重新调 AI
+    _calCache[nameValue + '_' + dateValue] = undefined;
     await fetchData();
     renderOverview();
   } catch (e) { saveText.textContent = '❌ 保存失败，请重试'; saveBtn.disabled = false; }
 });
 
-// =============================================
 // PWA Service Worker 注册
-// =============================================
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
-// =============================================
 // 初始化数据
-// =============================================
 (async function init() {
   await fetchData();
   renderOverview();
