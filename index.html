@@ -14,1522 +14,288 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 <style>
-:root {
-  --jing: #FF6B6B;
-  --jing-light: #FFF0EE;
-  --jing-glow: #FF8E8E;
-  --esther: #7C5CFC;
-  --esther-light: #F3F0FF;
-  --esther-glow: #9B7EFF;
-  --success: #4ECDC4;
-  --success-light: #E8FAF8;
-  --warn: #FFB347;
-  --warn-light: #FFF8ED;
-  --danger: #FF6B6B;
-  --bg: #FAF8F5;
-  --card: #FFFFFF;
-  --text: #2D2A3A;
-  --text-secondary: #8B8898;
-  --text-muted: #B5B2C0;
-  --border: #EFEDF3;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-  --shadow-md: 0 8px 30px rgba(0,0,0,.08);
-  --shadow-lg: 0 20px 60px rgba(0,0,0,.10);
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
-  --transition: .25s cubic-bezier(.4,0,.2,1);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  margin: 0;
-  padding: 0 0 90px;
-  background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "SF Pro Text", sans-serif;
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-.container { max-width: 640px; margin: 0 auto; padding: 16px; }
-.hero { position: relative; overflow: hidden; }
-.hero-card {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 30%, #7C5CFC 70%, #9B7EFF 100%);
-  border-radius: var(--radius-xl);
-  padding: 28px 24px 20px;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-.hero-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -30%;
-  width: 260px;
-  height: 260px;
-  background: rgba(255,255,255,.08);
-  border-radius: 50%;
-}
-.hero-card::after {
-  content: '';
-  position: absolute;
-  bottom: -40%;
-  left: -20%;
-  width: 200px;
-  height: 200px;
-  background: rgba(255,255,255,.05);
-  border-radius: 50%;
-}
-.hero-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
-.hero-subtitle { font-size: 13px; opacity: .8; margin-bottom: 22px; position: relative; z-index: 1; }
-.hero-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; position: relative; z-index: 1; }
-.hero-person {
-  background: rgba(255,255,255,.18);
-  backdrop-filter: blur(10px);
-  border-radius: var(--radius-md);
-  padding: 18px 16px;
-  text-align: center;
-  border: 1px solid rgba(255,255,255,.2);
-}
-.hero-person-name { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.hero-person-weight { font-size: 36px; font-weight: 800; line-height: 1.1; }
-.hero-person-unit { font-size: 14px; opacity: .7; }
-.hero-person-change { font-size: 12px; margin-top: 4px; opacity: .9; }
-.hero-person-progress { margin-top: 10px; height: 4px; background: rgba(255,255,255,.25); border-radius: 2px; overflow: hidden; }
-.hero-person-progress-bar { height: 100%; border-radius: 2px; background: rgba(255,255,255,.8); transition: width .6s ease; }
-.hero-streak { margin-top: 18px; display: flex; justify-content: center; gap: 24px; position: relative; z-index: 1; }
-.hero-streak-item { text-align: center; font-size: 12px; opacity: .85; }
-.hero-streak-item strong { display: block; font-size: 20px; font-weight: 700; }
-
-/* 底部导航 */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-around;
-  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-  z-index: 100;
-}
-.nav-item {
-  flex: 1;
-  text-align: center;
-  padding: 6px 0;
-  cursor: pointer;
-  transition: var(--transition);
-  border: none;
-  background: none;
-  font-size: 13px;
-  color: var(--text-muted);
-  font-family: inherit;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.nav-item .nav-icon { font-size: 22px; transition: transform var(--transition); }
-.nav-item.active { color: var(--jing); }
-.nav-item.active .nav-icon { transform: scale(1.15); }
-
-.page { display: none; animation: fadeSlideIn .35s ease; }
-.page.active { display: block; }
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.card { background: var(--card); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow-sm); transition: var(--transition); }
-.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 16px; font-weight: 700; }
-.card-header .icon { font-size: 22px; }
-
-.section-card { background: var(--card); border-radius: var(--radius-lg); margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow-sm); }
-.section-header { padding: 14px 18px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-.section-header .indicator { width: 4px; height: 20px; border-radius: 2px; }
-.section-body { padding: 0 18px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.section-body .full { grid-column: 1 / -1; }
-.section-header-measure .indicator { background: var(--jing); }
-.section-header-measure { background: var(--jing-light); }
-.section-header-diet .indicator { background: var(--success); }
-.section-header-diet { background: var(--success-light); }
-.section-header-lifestyle .indicator { background: var(--esther); }
-.section-header-lifestyle { background: var(--esther-light); }
-
-.input-group { position: relative; }
-.input-group label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 600; }
-.input-group input, .input-group select, .input-group textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: #FAFAFC;
-  font-size: 15px;
-  font-family: inherit;
-  color: var(--text);
-  transition: var(--transition);
-  -webkit-appearance: none;
-}
-.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
-  outline: none;
-  border-color: var(--jing);
-  background: #FFF;
-  box-shadow: 0 0 0 3px rgba(255,107,107,.12);
-}
-.input-group input::placeholder { color: var(--text-muted); }
-.input-group .unit { position: absolute; right: 14px; bottom: 14px; font-size: 13px; color: var(--text-muted); pointer-events: none; }
-.input-group input[type="number"] { padding-right: 44px; }
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 14px 24px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 15px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  transition: var(--transition);
-  width: 100%;
-}
-.btn-primary { background: linear-gradient(135deg, var(--jing), var(--jing-glow)); color: white; box-shadow: 0 4px 15px rgba(255,107,107,.35); }
-.btn-primary:active { transform: scale(.97); }
-.btn-primary.success { background: linear-gradient(135deg, var(--success), #3DBDB5); box-shadow: 0 4px 15px rgba(78,205,196,.35); }
-.btn-sm { padding: 8px 16px; font-size: 13px; width: auto; border-radius: var(--radius-sm); }
-.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-secondary); }
-
-.goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.goal-item { text-align: center; }
-.goal-item .goal-label { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; }
-
-.feedback-list { display: flex; flex-direction: column; gap: 10px; }
-.feedback-item { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 14px; line-height: 1.6; display: flex; align-items: flex-start; gap: 10px; }
-.feedback-item .fb-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-.feedback-item.good { background: var(--success-light); border-left: 3px solid var(--success); }
-.feedback-item.warn { background: var(--warn-light); border-left: 3px solid var(--warn); }
-.feedback-item.info { background: var(--esther-light); border-left: 3px solid var(--esther); }
-.feedback-item.compare { background: var(--jing-light); border-left: 3px solid var(--jing); }
-
-.chart-tabs { display: flex; gap: 6px; margin-bottom: 14px; background: #F5F4F7; border-radius: var(--radius-sm); padding: 4px; }
-.chart-tab {
-  flex: 1;
-  text-align: center;
-  padding: 8px 0;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  color: var(--text-secondary);
-}
-.chart-tab.active { background: white; color: var(--text); box-shadow: var(--shadow-sm); }
-.time-tabs { justify-content: center; }
-.time-tab { flex: 0; padding: 8px 16px; font-size: 12px; }
-
-.history-filters { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
-.history-filters select { padding: 8px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); font-size: 13px; background: white; font-family: inherit; }
-.history-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
-.history-stat { text-align: center; background: var(--card); padding: 14px 10px; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); }
-.history-stat .hs-val { font-size: 14px; font-weight: 700; line-height: 1.4; }
-.history-stat .hs-label { font-size: 11px; color: var(--text-muted); }
-
-.history-item { background: var(--card); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 8px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
-.history-item .hi-date { font-size: 13px; font-weight: 600; }
-.history-item .hi-summary { font-size: 12px; color: var(--text-secondary); }
-.history-item .hi-weight { font-size: 20px; font-weight: 800; }
-.history-item .hi-actions { display: flex; gap: 4px; }
-
-.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.badge-item { text-align: center; padding: 16px 8px; border-radius: var(--radius-md); background: var(--card); box-shadow: var(--shadow-sm); transition: var(--transition); }
-.badge-item.earned { background: linear-gradient(135deg, #FFF9E6, #FFF3CC); }
-.badge-item .badge-emoji { font-size: 32px; margin-bottom: 6px; }
-.badge-item .badge-name { font-size: 12px; font-weight: 600; }
-.badge-item.locked { opacity: .4; filter: grayscale(1); }
-.badge-item.locked .badge-emoji { filter: grayscale(1); }
-
-.vs-card { background: linear-gradient(135deg, var(--jing-light), var(--esther-light)); border-radius: var(--radius-md); padding: 18px; text-align: center; }
-.vs-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
-.vs-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.vs-bar-wrap { flex: 1; height: 10px; background: rgba(0,0,0,.08); border-radius: 5px; overflow: hidden; }
-.vs-bar { height: 100%; border-radius: 5px; transition: width .6s ease; }
-.vs-bar.jing { background: var(--jing); }
-.vs-bar.esther { background: var(--esther); }
-
-.toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 200;
-  opacity: 0;
-  transition: opacity .3s;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; }
-.toast.success { background: var(--success); }
-
-/* 暗色模式 */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1A1A2E;
-    --card: #222240;
-    --text: #E8E6F0;
-    --text-secondary: #A09EB8;
-    --text-muted: #6E6C80;
-    --border: #333355;
-    --jing-light: #3D2025;
-    --esther-light: #282545;
-    --success-light: #1A3533;
-    --warn-light: #3D3020;
-  }
-  .bottom-nav { background: rgba(26,26,46,.95); }
-  .chart-tabs { background: #2A2A4A; }
-  .input-group input, .input-group select, .input-group textarea { background: #1E1E3A; color: var(--text); }
-}
+:root{--jing:#FF6B6B;--jing-light:#FFF0EE;--jing-glow:#FF8E8E;--esther:#7C5CFC;--esther-light:#F3F0FF;--esther-glow:#9B7EFF;--success:#4ECDC4;--success-light:#E8FAF8;--warn:#FFB347;--warn-light:#FFF8ED;--danger:#FF6B6B;--bg:#FAF8F5;--card:#FFFFFF;--text:#2D2A3A;--text-secondary:#8B8898;--text-muted:#B5B2C0;--border:#EFEDF3;--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 8px 30px rgba(0,0,0,.08);--shadow-lg:0 20px 60px rgba(0,0,0,.10);--radius-sm:12px;--radius-md:18px;--radius-lg:24px;--radius-xl:32px;--transition:.25s cubic-bezier(.4,0,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{margin:0;padding:0 0 90px;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","SF Pro Text",sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.container{max-width:640px;margin:0 auto;padding:16px}
+.hero{position:relative;overflow:hidden}
+.hero-card{background:linear-gradient(135deg,#FF6B6B 0%,#FF8E8E 30%,#7C5CFC 70%,#9B7EFF 100%);border-radius:var(--radius-xl);padding:28px 24px 20px;color:white;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.hero-card::before{content:'';position:absolute;top:-50%;right:-30%;width:260px;height:260px;background:rgba(255,255,255,.08);border-radius:50%}
+.hero-card::after{content:'';position:absolute;bottom:-40%;left:-20%;width:200px;height:200px;background:rgba(255,255,255,.05);border-radius:50%}
+.hero-title{font-size:22px;font-weight:700;margin-bottom:4px;position:relative;z-index:1}
+.hero-subtitle{font-size:13px;opacity:.8;margin-bottom:22px;position:relative;z-index:1}
+.hero-duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;position:relative;z-index:1}
+.hero-person{background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border-radius:var(--radius-md);padding:18px 16px;text-align:center;border:1px solid rgba(255,255,255,.2)}
+.hero-person-name{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.hero-person-name .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.hero-person-weight{font-size:36px;font-weight:800;line-height:1.1}
+.hero-person-unit{font-size:14px;opacity:.7}
+.hero-person-change{font-size:12px;margin-top:4px;opacity:.9;display:flex;align-items:center;justify-content:center;gap:4px}
+.hero-person-progress{margin-top:10px;height:4px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden}
+.hero-person-progress-bar{height:100%;border-radius:2px;background:rgba(255,255,255,.8);transition:width .6s ease}
+.hero-streak{margin-top:18px;display:flex;justify-content:center;gap:24px;position:relative;z-index:1}
+.hero-streak-item{text-align:center;font-size:12px;opacity:.85}
+.hero-streak-item strong{display:block;font-size:20px;font-weight:700}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:100}
+.nav-item{flex:1;text-align:center;padding:6px 0;cursor:pointer;transition:var(--transition);border:none;background:none;font-size:13px;color:var(--text-muted);font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px}
+.nav-item .nav-icon{font-size:22px;transition:transform var(--transition)}.nav-item.active{color:var(--jing)}.nav-item.active .nav-icon{transform:scale(1.15)}
+.page{display:none;animation:fadeSlideIn .35s ease}.page.active{display:block}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px;box-shadow:var(--shadow-sm);transition:var(--transition)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:16px;font-weight:700}
+.card-header .icon{font-size:22px}
+.section-card{background:var(--card);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.section-header{padding:14px 18px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.section-header .indicator{width:4px;height:20px;border-radius:2px}
+.section-body{padding:0 18px 18px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.section-body .full{grid-column:1/-1}
+.section-header-measure .indicator{background:var(--jing)}.section-header-measure{background:var(--jing-light)}
+.section-header-diet .indicator{background:var(--success)}.section-header-diet{background:var(--success-light)}
+.section-header-lifestyle .indicator{background:var(--esther)}.section-header-lifestyle{background:var(--esther-light)}
+.input-group{position:relative}
+.input-group label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;font-weight:600}
+.input-group input,.input-group select,.input-group textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:#FAFAFC;font-size:15px;font-family:inherit;color:var(--text);transition:var(--transition);-webkit-appearance:none}
+.input-group input:focus,.input-group select:focus,.input-group textarea:focus{outline:none;border-color:var(--jing);background:#FFF;box-shadow:0 0 0 3px rgba(255,107,107,.12)}
+.input-group input::placeholder{color:var(--text-muted)}
+.input-group .unit{position:absolute;right:14px;bottom:14px;font-size:13px;color:var(--text-muted);pointer-events:none}
+.input-group input[type="number"]{padding-right:44px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:14px 24px;border:none;border-radius:var(--radius-md);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--transition);width:100%}
+.btn-primary{background:linear-gradient(135deg,var(--jing),var(--jing-glow));color:white;box-shadow:0 4px 15px rgba(255,107,107,.35)}
+.btn-primary:active{transform:scale(.97)}.btn-primary.success{background:linear-gradient(135deg,var(--success),#3DBDB5);box-shadow:0 4px 15px rgba(78,205,196,.35)}
+.btn-sm{padding:8px 16px;font-size:13px;width:auto;border-radius:var(--radius-sm)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-secondary)}
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.goal-item{text-align:center}
+.goal-item .goal-label{font-size:12px;color:var(--text-muted);margin-bottom:2px}
+.feedback-list{display:flex;flex-direction:column;gap:10px}
+.feedback-item{padding:12px 16px;border-radius:var(--radius-sm);font-size:14px;line-height:1.6;display:flex;align-items:flex-start;gap:10px}
+.feedback-item .fb-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.feedback-item.good{background:var(--success-light);border-left:3px solid var(--success)}
+.feedback-item.warn{background:var(--warn-light);border-left:3px solid var(--warn)}
+.feedback-item.info{background:var(--esther-light);border-left:3px solid var(--esther)}
+.feedback-item.compare{background:var(--jing-light);border-left:3px solid var(--jing)}
+.chart-tabs{display:flex;gap:6px;margin-bottom:14px;background:#F5F4F7;border-radius:var(--radius-sm);padding:4px}
+.chart-tab{flex:1;text-align:center;padding:8px 0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;background:transparent;font-family:inherit;color:var(--text-secondary)}
+.chart-tab.active{background:white;color:var(--text);box-shadow:var(--shadow-sm)}.time-tabs{justify-content:center}
+.time-tab{flex:0;padding:8px 16px;font-size:12px}
+.history-filters{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+.history-filters select{padding:8px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--border);font-size:13px;background:white;font-family:inherit}
+.history-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.history-stat{text-align:center;background:var(--card);padding:14px 10px;border-radius:var(--radius-sm);box-shadow:var(--shadow-sm)}
+.history-stat .hs-val{font-size:14px;font-weight:700;line-height:1.4}.history-stat .hs-label{font-size:11px;color:var(--text-muted)}
+.history-item{background:var(--card);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);display:flex;justify-content:space-between;align-items:center}
+.history-item .hi-left{display:flex;flex-direction:column;gap:2px}
+.history-item .hi-date{font-size:13px;font-weight:600}.history-item .hi-summary{font-size:12px;color:var(--text-secondary)}
+.history-item .hi-right{display:flex;align-items:center;gap:8px}.history-item .hi-weight{font-size:20px;font-weight:800}
+.history-item .hi-actions{display:flex;gap:4px}
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.badge-item{text-align:center;padding:16px 8px;border-radius:var(--radius-md);background:var(--card);box-shadow:var(--shadow-sm);transition:var(--transition)}
+.badge-item.earned{background:linear-gradient(135deg,#FFF9E6,#FFF3CC)}.badge-item .badge-emoji{font-size:32px;margin-bottom:6px}
+.badge-item .badge-name{font-size:12px;font-weight:600}.badge-item .badge-desc{font-size:10px;color:var(--text-muted);margin-top:2px}
+.badge-item.locked{opacity:.4;filter:grayscale(1)}.badge-item.locked .badge-emoji{filter:grayscale(1)}
+.vs-card{background:linear-gradient(135deg,var(--jing-light),var(--esther-light));border-radius:var(--radius-md);padding:18px;text-align:center}
+.vs-title{font-size:14px;font-weight:700;margin-bottom:12px}
+.vs-row{display:flex;align-items:center;justify-content:center;gap:10px}
+.vs-bar-wrap{flex:1;height:10px;background:rgba(0,0,0,.08);border-radius:5px;overflow:hidden}
+.vs-bar{height:100%;border-radius:5px;transition:width .6s ease}
+.vs-bar.jing{background:var(--jing)}.vs-bar.esther{background:var(--esther)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:600;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}.toast.success{background:var(--success)}
+@media(prefers-color-scheme:dark){:root{--bg:#1A1A2E;--card:#222240;--text:#E8E6F0;--text-secondary:#A09EB8;--text-muted:#6E6C80;--border:#333355;--jing-light:#3D2025;--esther-light:#282545;--success-light:#1A3533;--warn-light:#3D3020}.bottom-nav{background:rgba(26,26,46,.95)}.chart-tabs{background:#2A2A4A}.input-group input,.input-group select,.input-group textarea{background:#1E1E3A;color:var(--text)}}
 </style>
 </head>
 <body>
-
 <div class="toast" id="toast"></div>
 <div class="container">
 
-<!-- ==================== 概览页 ==================== -->
 <div class="page active" id="page-overview">
+<div class="hero" style="margin-bottom:14px"><div class="hero-card">
+<div class="hero-title">🥑 Jing & Esther 减脂挑战</div>
+<div class="hero-subtitle">每日记录 · 彼此激励 · 一起变好</div>
+<div class="hero-duo">
+<div class="hero-person" id="heroJing"><div class="hero-person-name"><span class="dot" style="background:#FFD700"></span>Jing</div><div class="hero-person-weight">--</div><div class="hero-person-unit">kg</div><div class="hero-person-change"></div><div class="hero-person-progress"><div class="hero-person-progress-bar" style="width:0%"></div></div><div style="font-size:11px;opacity:.7;margin-top:4px">距目标 <span class="goal-remain">--</span> kg</div></div>
+<div class="hero-person" id="heroEsther"><div class="hero-person-name"><span class="dot" style="background:#FFD700"></span>Esther</div><div class="hero-person-weight">--</div><div class="hero-person-unit">kg</div><div class="hero-person-change"></div><div class="hero-person-progress"><div class="hero-person-progress-bar" style="width:0%"></div></div><div style="font-size:11px;opacity:.7;margin-top:4px">距目标 <span class="goal-remain">--</span> kg</div></div>
+</div>
+<div class="hero-streak"><div class="hero-streak-item">🔥 连续打卡<strong id="streakDays">0</strong>天</div><div class="hero-streak-item">📅 累计记录<strong id="totalDays">0</strong>天</div><div class="hero-streak-item">⭐ 本周最佳<strong id="weekBest">--</strong></div></div>
+</div></div>
 
-  <!-- 英雄卡片 -->
-  <div class="hero" style="margin-bottom:14px">
-    <div class="hero-card">
-      <div class="hero-title">🥑 Jing & Esther 减脂挑战</div>
-      <div class="hero-subtitle">每日记录 · 彼此激励 · 一起变好</div>
-      <div class="hero-duo">
-        <div class="hero-person" id="heroJing">
-          <div class="hero-person-name"><span class="dot" style="background:#FFD700"></span>Jing</div>
-          <div class="hero-person-weight">--</div>
-          <div class="hero-person-unit">kg</div>
-          <div class="hero-person-change"></div>
-          <div class="hero-person-progress">
-            <div class="hero-person-progress-bar" style="width:0%"></div>
-          </div>
-          <div style="font-size:11px;opacity:.7;margin-top:4px">距目标 <span class="goal-remain">--</span> kg</div>
-        </div>
-        <div class="hero-person" id="heroEsther">
-          <div class="hero-person-name"><span class="dot" style="background:#FFD700"></span>Esther</div>
-          <div class="hero-person-weight">--</div>
-          <div class="hero-person-unit">kg</div>
-          <div class="hero-person-change"></div>
-          <div class="hero-person-progress">
-            <div class="hero-person-progress-bar" style="width:0%"></div>
-          </div>
-          <div style="font-size:11px;opacity:.7;margin-top:4px">距目标 <span class="goal-remain">--</span> kg</div>
-        </div>
-      </div>
-      <div class="hero-streak">
-        <div class="hero-streak-item">🔥 连续打卡<strong id="streakDays">0</strong>天</div>
-        <div class="hero-streak-item">📅 累计记录<strong id="totalDays">0</strong>天</div>
-        <div class="hero-streak-item">⭐ 本周最佳<strong id="weekBest">--</strong></div>
-      </div>
-    </div>
-  </div>
+<div class="card" style="margin-top:14px"><div class="card-header"><span class="icon">🔥</span>今日热量摄入</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div style="text-align:center;padding:16px;background:var(--jing-light);border-radius:var(--radius-md)"><div style="font-size:13px;font-weight:600;color:var(--jing);margin-bottom:6px">Jing</div><div style="font-size:30px;font-weight:800" id="calJing">--</div><div style="font-size:12px;color:var(--text-muted)">kcal</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calJingDetail"></div></div>
+<div style="text-align:center;padding:16px;background:var(--esther-light);border-radius:var(--radius-md)"><div style="font-size:13px;font-weight:600;color:var(--esther);margin-bottom:6px">Esther</div><div style="font-size:30px;font-weight:800" id="calEsther">--</div><div style="font-size:12px;color:var(--text-muted)">kcal</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calEstherDetail"></div></div>
+</div>
+<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-muted)" id="calCompare"></div></div>
 
-  <!-- 今日热量摄入 -->
-  <div class="card" style="margin-top:14px">
-    <div class="card-header"><span class="icon">🔥</span>今日热量摄入</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <div style="text-align:center;padding:16px;background:var(--jing-light);border-radius:var(--radius-md)">
-        <div style="font-size:13px;font-weight:600;color:var(--jing);margin-bottom:6px">Jing</div>
-        <div style="font-size:30px;font-weight:800" id="calJing">--</div>
-        <div style="font-size:12px;color:var(--text-muted)">kcal</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calJingDetail"></div>
-      </div>
-      <div style="text-align:center;padding:16px;background:var(--esther-light);border-radius:var(--radius-md)">
-        <div style="font-size:13px;font-weight:600;color:var(--esther);margin-bottom:6px">Esther</div>
-        <div style="font-size:30px;font-weight:800" id="calEsther">--</div>
-        <div style="font-size:12px;color:var(--text-muted)">kcal</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calEstherDetail"></div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-muted)" id="calCompare"></div>
-  </div>
+<div class="card" style="margin-top:14px"><div class="card-header"><span class="icon">🤖</span>今日智能反馈</div><div class="feedback-list" id="feedbackList"><div class="feedback-item info"><span class="fb-icon">📋</span><span>等待今日数据录入...</span></div></div></div>
+<div class="card"><div class="card-header"><span class="icon">🏆</span>成就徽章</div><div class="badge-grid" id="badgeGrid"></div></div>
+<div class="card"><div class="card-header"><span class="icon">⚡</span>本周对决</div><div class="vs-card"><div class="vs-title" id="vsTitle">本周数据对比</div><div class="vs-row" style="margin-bottom:10px"><span style="font-size:13px;font-weight:600;color:var(--jing);width:40px;text-align:right">Jing</span><div class="vs-bar-wrap"><div class="vs-bar jing" id="vsJingBar" style="width:50%"></div></div><span style="font-size:13px;font-weight:600;color:var(--esther);width:50px">Esther</span><div class="vs-bar-wrap"><div class="vs-bar esther" id="vsEstherBar" style="width:50%"></div></div></div><div style="font-size:12px;color:var(--text-muted)" id="vsLabel">等待数据...</div></div></div>
+</div>
 
-  <!-- 智能反馈 -->
-  <div class="card" style="margin-top:14px">
-    <div class="card-header"><span class="icon">🤖</span>今日智能反馈</div>
-    <div class="feedback-list" id="feedbackList">
-      <div class="feedback-item info"><span class="fb-icon">📋</span><span>等待今日数据录入...</span></div>
-    </div>
-  </div>
-
-  <!-- 成就徽章 -->
-  <div class="card">
-    <div class="card-header"><span class="icon">🏆</span>成就徽章</div>
-    <div class="badge-grid" id="badgeGrid"></div>
-  </div>
-
-  <!-- 本周对决 -->
-  <div class="card">
-    <div class="card-header"><span class="icon">⚡</span>本周对决</div>
-    <div class="vs-card">
-      <div class="vs-title" id="vsTitle">本周数据对比</div>
-      <div class="vs-row" style="margin-bottom:10px">
-        <span style="font-size:13px;font-weight:600;color:var(--jing);width:40px;text-align:right">Jing</span>
-        <div class="vs-bar-wrap"><div class="vs-bar jing" id="vsJingBar" style="width:50%"></div></div>
-        <span style="font-size:13px;font-weight:600;color:var(--esther);width:50px">Esther</span>
-        <div class="vs-bar-wrap"><div class="vs-bar esther" id="vsEstherBar" style="width:50%"></div></div>
-      </div>
-      <div style="font-size:12px;color:var(--text-muted)" id="vsLabel">等待数据...</div>
-    </div>
-  </div>
-
-</div><!-- /page-overview -->
-
-<!-- ==================== 记录页 ==================== -->
 <div class="page" id="page-record">
+<div class="card"><div class="card-header"><span class="icon">🎯</span>目标设定</div><div class="goal-grid">
+<div class="goal-item"><div class="goal-label">Jing 目标体重</div><input type="number" id="goalJingWeight" placeholder="kg" step="0.1" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:15px;background:#FAFAFC"></div>
+<div class="goal-item"><div class="goal-label">Esther 目标体重</div><input type="number" id="goalEstherWeight" placeholder="kg" step="0.1" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:15px;background:#FAFAFC"></div>
+<div class="goal-item"><div class="goal-label">每周运动目标(分钟)</div><input type="number" id="goalExercise" placeholder="分钟" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:15px;background:#FAFAFC"></div>
+<div class="goal-item"><button class="btn btn-sm btn-primary" id="saveGoal" style="margin-top:4px">💾 保存目标</button></div>
+</div></div>
+<div class="card" style="display:flex;gap:10px;align-items:center"><span style="font-weight:700;font-size:14px">👤 记录人:</span><button class="btn btn-sm person-btn active" data-person="Jing" style="flex:1;background:var(--jing);color:white">Jing</button><button class="btn btn-sm person-btn" data-person="Esther" style="flex:1;background:var(--border);color:var(--text-secondary)">Esther</button></div>
+<input type="hidden" id="name" value="Jing"><input type="hidden" id="editId" value="">
+<div class="card" style="padding:14px 20px"><div class="input-group"><label>📅 记录日期</label><input type="date" id="date"></div></div>
+<div class="section-card"><div class="section-header section-header-measure"><span class="indicator"></span>📏 身体数据</div><div class="section-body section-body-measure"><div class="input-group full"><label>体重 kg <span style="color:var(--danger)">*必填</span></label><input type="number" id="weight" placeholder="例: 65.0" step="0.1" min="30" max="200"><span class="unit">kg</span></div><div class="input-group"><label>腰围</label><input type="number" id="waist" placeholder="cm" step="0.1"><span class="unit">cm</span></div><div class="input-group"><label>臀围</label><input type="number" id="hip" placeholder="cm" step="0.1"><span class="unit">cm</span></div><div class="input-group"><label>大腿</label><input type="number" id="thigh" placeholder="cm" step="0.1"><span class="unit">cm</span></div><div class="input-group"><label>小腿</label><input type="number" id="calf" placeholder="cm" step="0.1"><span class="unit">cm</span></div><div class="input-group"><label>大臂</label><input type="number" id="arm" placeholder="cm" step="0.1"><span class="unit">cm</span></div></div></div>
+<div class="section-card"><div class="section-header section-header-diet"><span class="indicator"></span>🍽️ 饮食记录</div><div class="section-body section-diet"><div class="input-group full"><label>早餐</label><input type="text" id="breakfast" placeholder="例: 燕麦+鸡蛋+牛奶"></div><div class="input-group full"><label>午餐</label><input type="text" id="lunch" placeholder="例: 鸡胸肉沙拉"></div><div class="input-group full"><label>晚餐</label><input type="text" id="dinner" placeholder="例: 清蒸鱼+西兰花"></div><div class="input-group full"><label>下午茶/加餐</label><input type="text" id="afternoon" placeholder="例: 一把坚果"></div><div class="input-group"><label>甜品 (kcal)</label><input type="number" id="dessert" placeholder="kcal" min="0"><span class="unit">kcal</span></div><div class="input-group"><label>零食 (kcal)</label><input type="number" id="snack" placeholder="kcal" min="0"><span class="unit">kcal</span></div></div></div>
+<div class="section-card"><div class="section-header section-header-lifestyle"><span class="indicator"></span>🏃 运动与睡眠</div><div class="section-body section-lifestyle"><div class="input-group"><label>运动 (分钟)</label><input type="number" id="exercise" placeholder="分钟" min="0" max="480"><span class="unit">分钟</span></div><div class="input-group"><label>步数</label><input type="number" id="steps" placeholder="步" min="0"><span class="unit">步</span></div><div class="input-group"><label>睡眠 (小时)</label><input type="number" id="sleep" placeholder="小时" step="0.5" min="0" max="24"><span class="unit">h</span></div><div class="input-group"><label>压力 (1-10)</label><input type="number" id="stress" placeholder="1-10" min="1" max="10"><span class="unit">/10</span></div></div></div>
+<div class="card"><div class="input-group"><label>📝 备注</label><textarea id="note" placeholder="今天的心情、感受、小目标..." style="height:80px;resize:vertical"></textarea></div></div>
+<button class="btn btn-primary" id="save" style="margin-bottom:16px"><span id="saveText">✨ 保存今日记录</span></button>
+<p id="msg" style="text-align:center;font-size:13px;margin-bottom:12px"></p>
+</div>
 
-  <!-- 目标设定 -->
-  <div class="card">
-    <div class="card-header"><span class="icon">🎯</span>目标设定</div>
-    <div class="goal-grid">
-      <div class="goal-item">
-        <div class="goal-label">Jing 目标体重</div>
-        <input type="number" id="goalJingWeight" placeholder="kg" step="0.1" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:15px;background:#FAFAFC">
-      </div>
-      <div class="goal-item">
-        <div class="goal-label">Esther 目标体重</div>
-        <input type="number" id="goalEstherWeight" placeholder="kg" step="0.1" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:15px;background:#FAFAFC">
-      </div>
-      <div class="goal-item">
-        <div class="goal-label">每周运动目标(分钟)</div>
-        <input type="number" id="goalExercise" placeholder="分钟" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:15px;background:#FAFAFC">
-      </div>
-      <div class="goal-item">
-        <button class="btn btn-sm btn-primary" id="saveGoal" style="margin-top:4px">💾 保存目标</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 选择记录人 -->
-  <div class="card" style="display:flex;gap:10px;align-items:center">
-    <span style="font-weight:700;font-size:14px">👤 记录人:</span>
-    <button class="btn btn-sm person-btn active" data-person="Jing" style="flex:1;background:var(--jing);color:white">Jing</button>
-    <button class="btn btn-sm person-btn" data-person="Esther" style="flex:1;background:var(--border);color:var(--text-secondary)">Esther</button>
-  </div>
-
-  <input type="hidden" id="name" value="Jing">
-  <input type="hidden" id="editId" value="">
-
-  <!-- 日期 -->
-  <div class="card" style="padding:14px 20px">
-    <div class="input-group">
-      <label>📅 记录日期</label>
-      <input type="date" id="date">
-    </div>
-  </div>
-
-  <!-- 身体数据 -->
-  <div class="section-card">
-    <div class="section-header section-header-measure">
-      <span class="indicator"></span>📏 身体数据
-    </div>
-    <div class="section-body">
-      <div class="input-group full">
-        <label>体重 kg <span style="color:var(--danger)">*必填</span></label>
-        <input type="number" id="weight" placeholder="例: 65.0" step="0.1" min="30" max="200">
-        <span class="unit">kg</span>
-      </div>
-      <div class="input-group"><label>腰围</label><input type="number" id="waist" placeholder="cm" step="0.1"><span class="unit">cm</span></div>
-      <div class="input-group"><label>臀围</label><input type="number" id="hip" placeholder="cm" step="0.1"><span class="unit">cm</span></div>
-      <div class="input-group"><label>大腿</label><input type="number" id="thigh" placeholder="cm" step="0.1"><span class="unit">cm</span></div>
-      <div class="input-group"><label>小腿</label><input type="number" id="calf" placeholder="cm" step="0.1"><span class="unit">cm</span></div>
-      <div class="input-group"><label>大臂</label><input type="number" id="arm" placeholder="cm" step="0.1"><span class="unit">cm</span></div>
-    </div>
-  </div>
-
-  <!-- 饮食记录 -->
-  <div class="section-card">
-    <div class="section-header section-header-diet">
-      <span class="indicator"></span>🍽️ 饮食记录
-    </div>
-    <div class="section-body">
-      <div class="input-group full"><label>早餐</label><input type="text" id="breakfast" placeholder="例: 燕麦+鸡蛋+牛奶"></div>
-      <div class="input-group full"><label>午餐</label><input type="text" id="lunch" placeholder="例: 鸡胸肉沙拉"></div>
-      <div class="input-group full"><label>晚餐</label><input type="text" id="dinner" placeholder="例: 清蒸鱼+西兰花"></div>
-      <div class="input-group full"><label>下午茶/加餐</label><input type="text" id="afternoon" placeholder="例: 一把坚果"></div>
-      <div class="input-group"><label>甜品 (kcal)</label><input type="number" id="dessert" placeholder="kcal" min="0"><span class="unit">kcal</span></div>
-      <div class="input-group"><label>零食 (kcal)</label><input type="number" id="snack" placeholder="kcal" min="0"><span class="unit">kcal</span></div>
-    </div>
-  </div>
-
-  <!-- 运动与睡眠 -->
-  <div class="section-card">
-    <div class="section-header section-header-lifestyle">
-      <span class="indicator"></span>🏃 运动与睡眠
-    </div>
-    <div class="section-body">
-      <div class="input-group"><label>运动 (分钟)</label><input type="number" id="exercise" placeholder="分钟" min="0" max="480"><span class="unit">分钟</span></div>
-      <div class="input-group"><label>步数</label><input type="number" id="steps" placeholder="步" min="0"><span class="unit">步</span></div>
-      <div class="input-group"><label>睡眠 (小时)</label><input type="number" id="sleep" placeholder="小时" step="0.5" min="0" max="24"><span class="unit">h</span></div>
-      <div class="input-group"><label>压力 (1-10)</label><input type="number" id="stress" placeholder="1-10" min="1" max="10"><span class="unit">/10</span></div>
-    </div>
-  </div>
-
-  <!-- 备注 -->
-  <div class="card">
-    <div class="input-group">
-      <label>📝 备注</label>
-      <textarea id="note" placeholder="今天的心情、感受、小目标..." style="height:80px;resize:vertical"></textarea>
-    </div>
-  </div>
-
-  <button class="btn btn-primary" id="save" style="margin-bottom:16px">
-    <span id="saveText">✨ 保存今日记录</span>
-  </button>
-  <p id="msg" style="text-align:center;font-size:13px;margin-bottom:12px"></p>
-
-</div><!-- /page-record -->
-
-<!-- ==================== 趋势页 ==================== -->
 <div class="page" id="page-trends">
+<div class="card"><div class="card-header"><span class="icon">📈</span>数据趋势</div><div class="chart-tabs" id="chartTypeTabs"><button class="chart-tab active" data-chart="weight">体重</button><button class="chart-tab" data-chart="circumference">围度</button><button class="chart-tab" data-chart="activity">运动&睡眠</button></div><div class="chart-tabs time-tabs" id="timeTabs"><button class="chart-tab time-tab active" data-range="7">7天</button><button class="chart-tab time-tab" data-range="30">30天</button><button class="chart-tab time-tab" data-range="all">全部</button></div><div style="position:relative;height:200px"><canvas id="chart"></canvas></div></div>
+<div class="card"><div class="card-header"><span class="icon">📊</span>统计汇总</div><div class="history-summary" id="trendSummary"><div class="history-stat" style="border-left:3px solid var(--jing)"><div class="hs-label">Jing</div><div class="hs-val" id="tsJWeight">--</div><div class="hs-val" id="tsJExercise" style="font-size:12px">运动 --</div><div class="hs-val" id="tsJSleep" style="font-size:12px">睡眠 --</div></div><div class="history-stat" style="border-left:3px solid var(--esther)"><div class="hs-label">Esther</div><div class="hs-val" id="tsEWeight">--</div><div class="hs-val" id="tsEExercise" style="font-size:12px">运动 --</div><div class="hs-val" id="tsESleep" style="font-size:12px">睡眠 --</div></div></div></div>
+</div>
 
-  <!-- 趋势图表 -->
-  <div class="card">
-    <div class="card-header"><span class="icon">📈</span>数据趋势</div>
-    <div class="chart-tabs" id="chartTypeTabs">
-      <button class="chart-tab active" data-chart="weight">体重</button>
-      <button class="chart-tab" data-chart="circumference">围度</button>
-      <button class="chart-tab" data-chart="activity">运动&amp;睡眠</button>
-    </div>
-    <div class="chart-tabs time-tabs" id="timeTabs">
-      <button class="chart-tab time-tab active" data-range="7">7天</button>
-      <button class="chart-tab time-tab" data-range="30">30天</button>
-      <button class="chart-tab time-tab" data-range="all">全部</button>
-    </div>
-    <div style="position:relative;height:200px">
-      <canvas id="chart"></canvas>
-    </div>
-  </div>
-
-  <!-- 统计汇总 -->
-  <div class="card">
-    <div class="card-header"><span class="icon">📊</span>统计汇总</div>
-    <div class="history-summary" id="trendSummary">
-      <div class="history-stat" style="border-left:3px solid var(--jing)">
-        <div class="hs-label">Jing</div>
-        <div class="hs-val" id="tsJWeight">--</div>
-        <div class="hs-val" id="tsJExercise" style="font-size:12px">运动 --</div>
-        <div class="hs-val" id="tsJSleep" style="font-size:12px">睡眠 --</div>
-      </div>
-      <div class="history-stat" style="border-left:3px solid var(--esther)">
-        <div class="hs-label">Esther</div>
-        <div class="hs-val" id="tsEWeight">--</div>
-        <div class="hs-val" id="tsEExercise" style="font-size:12px">运动 --</div>
-        <div class="hs-val" id="tsESleep" style="font-size:12px">睡眠 --</div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /page-trends -->
-
-<!-- ==================== 历史页 ==================== -->
 <div class="page" id="page-history">
-  <div class="card">
-    <div class="card-header"><span class="icon">📋</span>历史记录</div>
-    <div class="history-filters">
-      <select id="historyPerson">
-        <option value="all">👥 全部</option>
-        <option value="Jing">Jing</option>
-        <option value="Esther">Esther</option>
-      </select>
-      <select id="historyPeriod">
-        <option value="all">全部时间</option>
-        <option value="7">最近7天</option>
-        <option value="30">最近30天</option>
-      </select>
-      <button class="btn btn-sm btn-outline" id="refreshHistory">🔄 刷新</button>
-    </div>
-    <div id="historyList">
-      <div class="feedback-item info"><span class="fb-icon">📋</span><span>加载中...</span></div>
-    </div>
-  </div>
-</div><!-- /page-history -->
+<div class="card"><div class="card-header"><span class="icon">📋</span>历史记录</div><div class="history-filters"><select id="historyPerson"><option value="all">👥 全部</option><option value="Jing">Jing</option><option value="Esther">Esther</option></select><select id="historyPeriod"><option value="all">全部时间</option><option value="7">最近7天</option><option value="30">最近30天</option></select><button class="btn btn-sm btn-outline" id="refreshHistory">🔄 刷新</button></div><div id="historyList"><div class="feedback-item info"><span class="fb-icon">📋</span><span>加载中...</span></div></div></div>
+</div>
 
-</div><!-- /container -->
-
-<!-- 底部导航 -->
+</div>
 <nav class="bottom-nav">
-  <button class="nav-item active" data-page="overview">
-    <span class="nav-icon">📊</span>概览
-  </button>
-  <button class="nav-item" data-page="record">
-    <span class="nav-icon">✏️</span>记录
-  </button>
-  <button class="nav-item" data-page="trends">
-    <span class="nav-icon">📈</span>趋势
-  </button>
-  <button class="nav-item" data-page="history">
-    <span class="nav-icon">📋</span>历史
-  </button>
+<button class="nav-item active" data-page="overview"><span class="nav-icon">📊</span>概览</button>
+<button class="nav-item" data-page="record"><span class="nav-icon">✏️</span>记录</button>
+<button class="nav-item" data-page="trends"><span class="nav-icon">📈</span>趋势</button>
+<button class="nav-item" data-page="history"><span class="nav-icon">📋</span>历史</button>
 </nav>
 
 <script>
+// ⚠️ 替换成你自己的 Google Apps Script Web 应用 URL
 const API_URL = "https://script.google.com/macros/s/AKfycbweAY1NCkdpOv0I6v08x4eLsFS7UPDkR6QA6vCS9ZLrwhKJm6-yAkGoxxc_Lh082O664A/exec";
 
-let allData = [];
-let chart = null;
-let currentChartType = 'weight';
-let currentTimeRange = '7';
-let editingId = null;
+let allData=[],chart=null,currentChartType='weight',currentTimeRange='7',editingId=null;
+const $=id=>document.getElementById(id);
+try{$('date').value=new Date().toISOString().slice(0,10)}catch(e){}
 
-const $ = function(id) { return document.getElementById(id); };
-
-try {
-  $('date').value = new Date().toISOString().slice(0, 10);
-} catch(e) {}
-
-// ==================== 热量估算（含加餐 + AI标记）====================
-async function renderCalories() {
-  try {
-    if (allData.length === 0) return;
-    var today = new Date().toISOString().slice(0, 10);
-
-    for (var i = 0; i < 2; i++) {
-      var name = ['Jing', 'Esther'][i];
-      var calEl = document.getElementById('cal' + name);
-      var detailEl = document.getElementById('cal' + name + 'Detail');
-      if (!calEl || !detailEl) continue;
-
-      var todayRecords = allData.filter(function(d) {
-        return d.name === name && d.date === today;
-      });
-
-      if (todayRecords.length === 0) {
-        calEl.textContent = '--';
-        detailEl.textContent = '';
-        continue;
-      }
-
-      var latest = todayRecords.sort(function(a, b) {
-        var ta = a.id || a.time || '';
-        var tb = b.id || b.time || '';
-        return String(tb).localeCompare(String(ta));
-      })[0];
-
-      var meals = [];
-      if (latest.breakfast) meals.push('早餐：' + latest.breakfast);
-      if (latest.lunch) meals.push('午餐：' + latest.lunch);
-      if (latest.dinner) meals.push('晚餐：' + latest.dinner);
-      if (latest.afternoon) meals.push('加餐：' + latest.afternoon);
-      var foodText = meals.join('；');
-
-      if (meals.length === 0) {
-        calEl.textContent = '--';
-        detailEl.textContent = '';
-        continue;
-      }
-
-      calEl.textContent = '...';
-      detailEl.textContent = 'AI分析中...';
-
-      try {
-        var resp = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'analyze_food', text: foodText })
-        });
-        var raw = await resp.text();
-        var r;
-        try {
-          r = JSON.parse(raw);
-        } catch(pe) {
-          detailEl.textContent = 'API异常: ' + raw.substring(0, 60);
-          continue;
-        }
-
-        if (r.error) {
-          detailEl.textContent = 'AI错误: ' + r.error;
-          continue;
-        }
-
-        if (r.totalCal > 0) {
-          calEl.textContent = r.totalCal;
-
-          var p = [];
-          if (r.breakfast && r.breakfast.total) p.push('早' + r.breakfast.total);
-          if (r.lunch && r.lunch.total) p.push('午' + r.lunch.total);
-          if (r.dinner && r.dinner.total) p.push('晚' + r.dinner.total);
-          if (r.afternoon && r.afternoon.total) p.push('加餐' + r.afternoon.total);
-
-          if (p.length) {
-            detailEl.textContent = 'AI · ' + p.join('+') + ' = ' + r.totalCal + ' kcal';
-          } else {
-            detailEl.textContent = 'AI · ' + r.totalCal + ' kcal';
-          }
-        } else {
-          detailEl.textContent = 'AI返回0';
-        }
-
-      } catch(e) {
-        detailEl.textContent = '网络异常: ' + e.message;
-      }
-    }
-
-    // 两人对比
-    var jC = parseInt(document.getElementById('calJing').textContent) || 0;
-    var eC = parseInt(document.getElementById('calEsther').textContent) || 0;
-    var cmp = document.getElementById('calCompare');
-    if (cmp && jC && eC) {
-      if (jC < eC) {
-        cmp.textContent = 'Jing 比 Esther 少摄入 ' + (eC - jC) + ' kcal 🥗';
-      } else if (eC < jC) {
-        cmp.textContent = 'Esther 比 Jing 少摄入 ' + (jC - eC) + ' kcal 🥗';
-      } else {
-        cmp.textContent = '两人摄入热量相当 🤝';
-      }
-    }
-
-  } catch(ex) {
-    console.error('renderCalories', ex);
-  }
+// ====== 热量估算（含加餐 + AI标记 + localStorage缓存）v18 ======
+function calCacheKey(name,foodText){return'cal_'+name+'_'+foodText.split('').reduce(function(s,c){return((s<<5)-s)+c.charCodeAt(0)|0},0)}
+function calCacheGet(name,foodText){try{var k=calCacheKey(name,foodText),v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+function calCacheSet(name,foodText,data){try{var k=calCacheKey(name,foodText);localStorage.setItem(k,JSON.stringify(data))}catch(e){}}
+function calDisplay(calEl,detailEl,data){calEl.textContent=data.totalCal;var p=[];if(data.breakfast&&data.breakfast.total)p.push('早'+data.breakfast.total);if(data.lunch&&data.lunch.total)p.push('午'+data.lunch.total);if(data.dinner&&data.dinner.total)p.push('晚'+data.dinner.total);if(data.afternoon&&data.afternoon.total)p.push('加餐'+data.afternoon.total);detailEl.textContent='AI · '+(p.length?p.join('+')+' = '+data.totalCal+' kcal':data.totalCal+' kcal')}
+async function renderCalories(){
+try{
+if(allData.length===0)return;const today=new Date().toISOString().slice(0,10);
+for(const name of['Jing','Esther']){const calEl=document.getElementById('cal'+name),detailEl=document.getElementById('cal'+name+'Detail');if(!calEl||!detailEl)continue;
+const todayRecords=allData.filter(d=>d.name===name&&d.date===today);
+if(todayRecords.length===0){calEl.textContent='--';detailEl.textContent='';continue}
+const latest=todayRecords.sort((a,b)=>{const ta=a.id||a.time||'',tb=b.id||b.time||'';return String(tb).localeCompare(String(ta))})[0];
+const meals=[];if(latest.breakfast)meals.push('早餐：'+latest.breakfast);if(latest.lunch)meals.push('午餐：'+latest.lunch);if(latest.dinner)meals.push('晚餐：'+latest.dinner);if(latest.afternoon)meals.push('加餐：'+latest.afternoon);const foodText=meals.join('；');
+if(meals.length===0){calEl.textContent='--';detailEl.textContent='';continue}
+// 先从缓存取
+var cached=calCacheGet(name,foodText);
+if(cached){calDisplay(calEl,detailEl,cached);continue}
+calEl.textContent='...';detailEl.textContent='AI分析中...';
+try{const resp=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'analyze_food',text:foodText})});const raw=await resp.text();let r;try{r=JSON.parse(raw)}catch(pe){detailEl.textContent='API异常: '+raw.substring(0,60);continue}if(r.error){detailEl.textContent='AI错误: '+r.error;continue}if(r.totalCal>0){calDisplay(calEl,detailEl,r);calCacheSet(name,foodText,r)}else{detailEl.textContent='AI返回0'}}catch(e){detailEl.textContent='网络异常: '+e.message}}
+const jC=parseInt(document.getElementById('calJing')?.textContent)||0,eC=parseInt(document.getElementById('calEsther')?.textContent)||0,cmp=document.getElementById('calCompare');if(cmp&&jC&&eC){if(jC<eC)cmp.textContent='Jing 比 Esther 少摄入 '+(eC-jC)+' kcal 🥗';else if(eC<jC)cmp.textContent='Esther 比 Jing 少摄入 '+(jC-eC)+' kcal 🥗';else cmp.textContent='两人摄入热量相当 🤝'}
+}catch(ex){console.error('renderCalories',ex)}
 }
 
-// ==================== Toast 提示 ====================
-function showToast(msg, type) {
-  try {
-    var t = $('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + (type || '') + ' show';
-    setTimeout(function() { t.className = 'toast'; }, 2000);
-  } catch(e) {}
+function showToast(msg,type){try{const t=$('toast');t.textContent=msg;t.className='toast '+(type||'')+' show';setTimeout(function(){t.className='toast'},2000)}catch(e){}}
+
+document.querySelectorAll('.nav-item').forEach(function(btn){btn.addEventListener('click',function(){try{document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});btn.classList.add('active');var page=$('page-'+btn.dataset.page);if(page)page.classList.add('active');if(btn.dataset.page==='trends')renderChart();if(btn.dataset.page==='history')renderHistory();if(btn.dataset.page==='overview')renderOverview()}catch(e){}})});
+document.querySelectorAll('.person-btn').forEach(function(btn){btn.addEventListener('click',function(){try{document.querySelectorAll('.person-btn').forEach(function(b){b.classList.remove('active');b.style.background='var(--border)';b.style.color='var(--text-secondary)'});btn.classList.add('active');var color=btn.dataset.person==='Jing'?'var(--jing)':'var(--esther)';btn.style.background=color;btn.style.color='white';$('name').value=btn.dataset.person}catch(e){}})});
+
+function loadGoals(){try{var g=JSON.parse(localStorage.getItem('fitGoals')||'{}');if(g.jingWeight)$('goalJingWeight').value=g.jingWeight;if(g.estherWeight)$('goalEstherWeight').value=g.estherWeight;if(g.exercise)$('goalExercise').value=g.exercise}catch(e){}}loadGoals();
+$('saveGoal').addEventListener('click',function(){try{var g={jingWeight:parseFloat($('goalJingWeight').value)||0,estherWeight:parseFloat($('goalEstherWeight').value)||0,exercise:parseInt($('goalExercise').value)||0};localStorage.setItem('fitGoals',JSON.stringify(g));showToast('目标已保存','success');renderOverview()}catch(e){}});
+
+async function fetchData(){try{var res=await fetch(API_URL);allData=await res.json();if(!Array.isArray(allData))allData=[];return allData}catch(e){console.error(e);allData=[];return[]}}
+function getLatestForPerson(name){var r=allData.filter(function(d){return d.name===name}).sort(function(a,b){return b.date.localeCompare(a.date)});return r[0]||null}
+function getPersonData(name){return allData.filter(function(d){return d.name===name}).sort(function(a,b){return a.date.localeCompare(b.date)})}
+function getWeekData(name){var n=new Date(),w=new Date(n.getTime()-7*86400000).toISOString().slice(0,10);return allData.filter(function(d){return d.name===name&&d.date>=w})}
+
+function renderOverview(){
+try{
+if(allData.length===0)return;var goals=JSON.parse(localStorage.getItem('fitGoals')||'{}'),jl=getLatestForPerson('Jing'),el=getLatestForPerson('Esther');
+var hj=document.querySelector('#heroJing');if(jl){hj.querySelector('.hero-person-weight').textContent=jl.weight;var jd=getPersonData('Jing');if(jd.length>=2){var c=jl.weight-jd[jd.length-2].weight;hj.querySelector('.hero-person-change').innerHTML='<span>'+(c>0?'+':'')+c.toFixed(1)+' kg</span>'}if(goals.jingWeight){var s=jd[0]&&jd[0].weight?jd[0].weight:jl.weight,t=s-goals.jingWeight,d=s-jl.weight,pct=t>0?Math.min(100,Math.max(0,(d/t)*100)):0;hj.querySelector('.hero-person-progress-bar').style.width=pct+'%';hj.querySelector('.goal-remain').textContent=Math.max(0,(jl.weight-goals.jingWeight)).toFixed(1)}}
+var he=document.querySelector('#heroEsther');if(el){he.querySelector('.hero-person-weight').textContent=el.weight;var ed=getPersonData('Esther');if(ed.length>=2){var c=el.weight-ed[ed.length-2].weight;he.querySelector('.hero-person-change').innerHTML='<span>'+(c>0?'+':'')+c.toFixed(1)+' kg</span>'}if(goals.estherWeight){var s=ed[0]&&ed[0].weight?ed[0].weight:el.weight,t=s-goals.estherWeight,d=s-el.weight,pct=t>0?Math.min(100,Math.max(0,(d/t)*100)):0;he.querySelector('.hero-person-progress-bar').style.width=pct+'%';he.querySelector('.goal-remain').textContent=Math.max(0,(el.weight-goals.estherWeight)).toFixed(1)}}
+var ad=[];allData.forEach(function(d){if(ad.indexOf(d.date)<0)ad.push(d.date)});ad.sort().reverse();var stk=0,tdy=new Date().toISOString().slice(0,10),cd=new Date(tdy);for(var i=0;i<ad.length;i++){var ex=cd.toISOString().slice(0,10);if(ad[i]===ex||ad.indexOf(ex)>=0){stk++;cd.setDate(cd.getDate()-1)}else break}$('streakDays').textContent=stk;$('totalDays').textContent=ad.length;
+var wj=getWeekData('Jing'),we=getWeekData('Esther'),jLoss=wj.length>=2?wj[0].weight-wj[wj.length-1].weight:0,eLoss=we.length>=2?we[0].weight-we[we.length-1].weight:0;if(jLoss>eLoss)$('weekBest').textContent='Jing 🏆';else if(eLoss>jLoss)$('weekBest').textContent='Esther 🏆';else $('weekBest').textContent='平手 🤝';
+renderFeedback(jl,el,wj,we,goals);renderBadges();renderVS(wj,we);renderCalories()
+}catch(ex){console.error('renderOverview error',ex)}
 }
 
-// ==================== 底部导航切换 ====================
-document.querySelectorAll('.nav-item').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    try {
-      document.querySelectorAll('.nav-item').forEach(function(b) {
-        b.classList.remove('active');
-      });
-      document.querySelectorAll('.page').forEach(function(p) {
-        p.classList.remove('active');
-      });
-      btn.classList.add('active');
-      var page = $('page-' + btn.dataset.page);
-      if (page) page.classList.add('active');
-      if (btn.dataset.page === 'trends') renderChart();
-      if (btn.dataset.page === 'history') renderHistory();
-      if (btn.dataset.page === 'overview') renderOverview();
-    } catch(e) {}
-  });
+function renderFeedback(jl,el,wj,we,goals){
+try{
+var items=[];if(!jl&&!el){$('feedbackList').innerHTML='<div class="feedback-item info"><span class="fb-icon">📋</span><span>还没有任何数据记录</span></div>';return}
+function ap(name,latest,wd,gw){if(!latest)return;var pd=getPersonData(name);if(pd.length>=2){var c=latest.weight-pd[pd.length-2].weight,dir=c>0.1?'上升':c<-0.1?'下降':'持平',ad=c>0.1?'warn':c<-0.1?'good':'info';items.push({type:ad,icon:'⚖️',text:name+' 体重 '+latest.weight+' kg，较上次'+dir+' '+Math.abs(c).toFixed(1)+' kg'})}else{items.push({type:'info',icon:'⚖️',text:name+' 体重 '+latest.weight+' kg，第一条！'})}if(gw&&latest.weight>gw){items.push({type:'info',icon:'🎯',text:name+' 距目标还需减 '+(latest.weight-gw).toFixed(1)+' kg'})}else if(gw&&latest.weight<=gw){items.unshift({type:'good',icon:'🎉',text:name+' 已达到目标 '+gw+' kg！'})}var ex=latest.exercise||0;if(ex>=60)items.push({type:'good',icon:'💪',text:name+' 运动 '+ex+' 分钟'});else if(ex>=30)items.push({type:'good',icon:'💪',text:name+' 运动 '+ex+' 分钟'});else if(ex>0)items.push({type:'info',icon:'💪',text:name+' 运动 '+ex+' 分钟'});else items.push({type:'warn',icon:'💤',text:name+' 暂无运动'});var st=latest.steps||0;if(st>=10000)items.push({type:'good',icon:'🚶',text:name+' 步数 '+st.toLocaleString()});var sl=latest.sleep||0;if(sl>=8)items.push({type:'good',icon:'😴',text:name+' 睡眠 '+sl+'h'});else if(sl>=6)items.push({type:'info',icon:'😴',text:name+' 睡眠 '+sl+'h'});else if(sl>0)items.push({type:'warn',icon:'😴',text:name+' 睡眠 '+sl+'h'});var cal=(latest.dessert||0)+(latest.snack||0);if(cal>400)items.push({type:'warn',icon:'🍪',text:name+' 零食 '+cal+' kcal'})}
+ap('Jing',jl,wj,goals.jingWeight);ap('Esther',el,we,goals.estherWeight);if(jl&&el){var jEx=jl.exercise||0,eEx=el.exercise||0,diff=Math.abs(jEx-eEx);if(diff>=10)items.push({type:'compare',icon:'🏆',text:'运动 '+(jEx>eEx?'Jing':'Esther')+' 领先 '+diff+' 分钟'})}[['Jing',wj],['Esther',we]].forEach(function(a){var n=a[0],wd=a[1];if(wd.length>=3){var s=wd.slice().sort(function(x,y){return x.date.localeCompare(y.date)});if(s[s.length-1].weight>s[s.length-2].weight&&s[s.length-2].weight>s[s.length-3].weight)items.push({type:'warn',icon:'⚠️',text:n+' 体重连续上升'});else if(s[s.length-1].weight<s[s.length-2].weight&&s[s.length-2].weight<s[s.length-3].weight)items.push({type:'good',icon:'📉',text:n+' 体重连续下降！'})}});$('feedbackList').innerHTML=items.map(function(i){return'<div class="feedback-item '+i.type+'"><span class="fb-icon">'+i.icon+'</span><span>'+i.text+'</span></div>'}).join('')
+}catch(ex){console.error('renderFeedback',ex)}
+}
+
+function renderBadges(){
+try{var badges=[{emoji:'📝',name:'初次记录',earned:allData.length>0},{emoji:'🔥',name:'连续3天',earned:parseInt($('streakDays').textContent)>=3},{emoji:'💎',name:'连续7天',earned:parseInt($('streakDays').textContent)>=7},{emoji:'🚶',name:'万步达人',earned:allData.some(function(d){return d.steps>=10000})},{emoji:'💪',name:'运动1小时',earned:allData.some(function(d){return d.exercise>=60})},{emoji:'⭐',name:'减重3kg',earned:checkWeightLoss(3)},{emoji:'🌟',name:'减重5kg',earned:checkWeightLoss(5)},{emoji:'📊',name:'30条记录',earned:allData.length>=30},{emoji:'😴',name:'优质睡眠',earned:allData.some(function(d){return d.sleep>=8})}];$('badgeGrid').innerHTML=badges.map(function(b){return'<div class="badge-item '+(b.earned?'earned':'locked')+'"><div class="badge-emoji">'+b.emoji+'</div><div class="badge-name">'+b.name+'</div></div>'}).join('')}catch(ex){}}
+function checkWeightLoss(t){for(var i=0;i<2;i++){var d=getPersonData(['Jing','Esther'][i]);if(d.length>=2&&d[0].weight-d[d.length-1].weight>=t)return true}return false}
+
+function renderVS(wj,we){
+try{var je=wj.reduce(function(s,d){return s+(d.exercise||0)},0),ee=we.reduce(function(s,d){return s+(d.exercise||0)},0),t=je+ee;if(t===0){$('vsLabel').textContent='本周暂无运动数据';$('vsJingBar').style.width='50%';$('vsEstherBar').style.width='50%';return}$('vsTitle').textContent='本周运动对比';$('vsJingBar').style.width=Math.round((je/t)*100)+'%';$('vsEstherBar').style.width=Math.round((ee/t)*100)+'%';if(je>ee)$('vsLabel').textContent='Jing '+je+'分钟 领先'+(je-ee)+'分钟 🏆';else if(ee>je)$('vsLabel').textContent='Esther '+ee+'分钟 领先'+(ee-je)+'分钟 🏆';else $('vsLabel').textContent='两人持平 🤝'}catch(ex){}
+}
+
+function renderChart(){
+try{
+if(allData.length===0||!$('chart'))return;var ctx=$('chart').getContext('2d');if(chart)chart.destroy();
+var filtered=allData.slice();if(currentTimeRange!=='all'){var days=parseInt(currentTimeRange),cutoff=new Date(Date.now()-days*86400000).toISOString().slice(0,10);filtered=filtered.filter(function(d){return d.date>=cutoff})}filtered.sort(function(a,b){return a.date.localeCompare(b.date)});
+var jd=filtered.filter(function(d){return d.name==='Jing'}),ed=filtered.filter(function(d){return d.name==='Esther'}),labels=[];filtered.forEach(function(d){if(labels.indexOf(d.date)<0)labels.push(d.date)});labels.sort();
+var datasets=[],scalesConfig={x:{grid:{display:false},ticks:{maxTicksLimit:8}},y:{grid:{color:'#F0EEF5'}}};
+if(currentChartType==='weight'){
+datasets.push({label:'Jing',data:labels.map(function(d){var r=jd.find(function(x){return x.date===d});return r?r.weight:null}),borderColor:'#FF6B6B',backgroundColor:'rgba(255,107,107,0.15)',fill:true,tension:0.3,borderWidth:3,pointRadius:3});
+datasets.push({label:'Esther',data:labels.map(function(d){var r=ed.find(function(x){return x.date===d});return r?r.weight:null}),borderColor:'#7C5CFC',backgroundColor:'rgba(124,92,252,0.15)',fill:true,tension:0.3,borderWidth:3,pointRadius:3});
+}else if(currentChartType==='circumference'){
+datasets.push({label:'Jing-腰围',data:labels.map(function(d){var r=jd.find(function(x){return x.date===d});return r&&r.waist?r.waist:null}),borderColor:'#FF6B6B',borderWidth:2,tension:0.3,pointRadius:2,fill:false});
+datasets.push({label:'Jing-臀围',data:labels.map(function(d){var r=jd.find(function(x){return x.date===d});return r&&r.hip?r.hip:null}),borderColor:'#FF9E9E',borderWidth:2,tension:0.3,pointRadius:2,fill:false,borderDash:[5,3]});
+datasets.push({label:'Esther-腰围',data:labels.map(function(d){var r=ed.find(function(x){return x.date===d});return r&&r.waist?r.waist:null}),borderColor:'#7C5CFC',borderWidth:2,tension:0.3,pointRadius:2,fill:false});
+datasets.push({label:'Esther-臀围',data:labels.map(function(d){var r=ed.find(function(x){return x.date===d});return r&&r.hip?r.hip:null}),borderColor:'#B09EFF',borderWidth:2,tension:0.3,pointRadius:2,fill:false,borderDash:[5,3]});
+}else if(currentChartType==='activity'){
+scalesConfig.y={position:'left',grid:{color:'#F0EEF5'},title:{display:true,text:'分钟'}};scalesConfig.y1={position:'right',grid:{display:false},title:{display:true,text:'小时'}};
+datasets.push({label:'Jing-运动',data:labels.map(function(d){var r=jd.find(function(x){return x.date===d});return r&&r.exercise?r.exercise:null}),borderColor:'#FF6B6B',borderWidth:2,tension:0.3,pointRadius:2,fill:false,yAxisID:'y'});
+datasets.push({label:'Esther-运动',data:labels.map(function(d){var r=ed.find(function(x){return x.date===d});return r&&r.exercise?r.exercise:null}),borderColor:'#7C5CFC',borderWidth:2,tension:0.3,pointRadius:2,fill:false,yAxisID:'y'});
+datasets.push({label:'Jing-睡眠',data:labels.map(function(d){var r=jd.find(function(x){return x.date===d});return r&&r.sleep?r.sleep:null}),borderColor:'#4ECDC4',borderWidth:2,tension:0.3,pointRadius:2,fill:false,yAxisID:'y1',borderDash:[3,3]});
+datasets.push({label:'Esther-睡眠',data:labels.map(function(d){var r=ed.find(function(x){return x.date===d});return r&&r.sleep?r.sleep:null}),borderColor:'#FFB347',borderWidth:2,tension:0.3,pointRadius:2,fill:false,yAxisID:'y1',borderDash:[3,3]});
+}
+chart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:20,boxWidth:8,font:{size:12}}}},scales:scalesConfig}});
+renderTrendSummary(filtered)
+}catch(ex){console.error('renderChart',ex)}
+}
+function renderTrendSummary(f){try{var cutoff=new Date(Date.now()-7*86400000).toISOString().slice(0,10);var wd=f.filter(function(d){return d.date>=cutoff});function calc(name){var d=wd.filter(function(x){return x.name===name}).sort(function(a,b){return a.date.localeCompare(b.date)});if(d.length===0)return{w:'--',e:'--',s:'--'};var w=d[d.length-1].weight.toFixed(1)+' kg';var ex=d.filter(function(x){return x.exercise}).reduce(function(s,x){return s+(x.exercise||0)},0);var e=ex>0?(ex/60).toFixed(1)+' h':'--';var sl=d.filter(function(x){return x.sleep}).reduce(function(s,x){return s+(x.sleep||0)},0);var s=sl>0?(sl/d.length).toFixed(1)+' h':'--';return{w:w,e:e,s:s}}var jr=calc('Jing'),er=calc('Esther');$('tsJWeight').textContent=jr.w;$('tsJExercise').textContent='运动 '+jr.e;$('tsJSleep').textContent='睡眠 '+jr.s;$('tsEWeight').textContent=er.w;$('tsEExercise').textContent='运动 '+er.e;$('tsESleep').textContent='睡眠 '+er.s}catch(ex){}}
+document.querySelectorAll('#chartTypeTabs .chart-tab').forEach(function(tab){tab.addEventListener('click',function(){document.querySelectorAll('#chartTypeTabs .chart-tab').forEach(function(t){t.classList.remove('active')});tab.classList.add('active');currentChartType=tab.dataset.chart;renderChart()})});
+document.querySelectorAll('#timeTabs .chart-tab').forEach(function(tab){tab.addEventListener('click',function(){document.querySelectorAll('#timeTabs .chart-tab').forEach(function(t){t.classList.remove('active')});tab.classList.add('active');currentTimeRange=tab.dataset.range;renderChart()})});
+
+async function renderHistory(){
+try{
+if(allData.length===0)await fetchData();var person=$('historyPerson').value,period=$('historyPeriod').value;var filtered=allData.slice();if(person!=='all')filtered=filtered.filter(function(d){return d.name===person});if(period!=='all'){var cutoff=new Date(Date.now()-parseInt(period)*86400000).toISOString().slice(0,10);filtered=filtered.filter(function(d){return d.date>=cutoff})}filtered.sort(function(a,b){return b.date.localeCompare(a.date)});if(filtered.length===0){$('historyList').innerHTML='<div class="feedback-item info"><span class="fb-icon">📋</span><span>暂无记录</span></div>';return}$('historyList').innerHTML=filtered.map(function(d){var summary=[d.exercise?'🏃'+d.exercise+'min':'',d.steps?'🚶'+d.steps+'步':'',d.sleep?'😴'+d.sleep+'h':''].filter(Boolean).join(' ');return'<div class="history-item"><div class="hi-left"><div class="hi-date">'+d.date+' · <span style="color:'+(d.name==='Jing'?'var(--jing)':'var(--esther)')+'">'+d.name+'</span></div><div class="hi-summary">'+(summary||'')+'</div></div><div class="hi-right"><div class="hi-weight">'+d.weight+'<span style="font-size:13px;color:var(--text-muted)">kg</span></div><div class="hi-actions"><button class="btn btn-sm btn-outline" onclick="editRecord(\''+d.date+'\',\''+d.name+'\')">✏️</button><button class="btn btn-sm btn-outline" onclick="deleteRecord(\''+d.date+'\',\''+d.name+'\')" style="color:var(--danger)">🗑</button></div></div></div>'}).join('')
+}catch(ex){console.error('renderHistory',ex)}
+}
+$('historyPerson').addEventListener('change',renderHistory);$('historyPeriod').addEventListener('change',renderHistory);$('refreshHistory').addEventListener('click',async function(){await fetchData();renderHistory();renderOverview()});
+
+async function editRecord(date,person){
+try{
+var records=allData.filter(function(d){return d.date===date&&d.name===person}).sort(function(a,b){var ta=a.id||a.time||'',tb=b.id||b.time||'';return String(tb).localeCompare(String(ta))});var record=records[0];if(!record)return;document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});var recBtn=document.querySelector('[data-page="record"]');if(recBtn)recBtn.classList.add('active');var recPg=$('page-record');if(recPg)recPg.classList.add('active');$('name').value=person;document.querySelectorAll('.person-btn').forEach(function(b){b.classList.remove('active');b.style.background='var(--border)';b.style.color='var(--text-secondary)';if(b.dataset.person===person){b.classList.add('active');b.style.background=person==='Jing'?'var(--jing)':'var(--esther)';b.style.color='white'}});$('date').value=date;editingId=record.id||null;$('editId').value=editingId||'';['weight','waist','hip','thigh','calf','arm','dessert','snack','exercise','steps','sleep','stress'].forEach(function(f){if($(f)&&record[f]!=null)$(f).value=record[f]});['breakfast','lunch','dinner','afternoon'].forEach(function(f){if($(f))$(f).value=record[f]||''});if($('note'))$('note').value=record.note||'';$('saveText').textContent='✏️ 更新记录';$('msg').innerHTML='<span style="color:var(--esther)">编辑 '+person+' '+date+'</span>';window.scrollTo({top:0,behavior:'smooth'})
+}catch(ex){console.error('editRecord',ex)}
+}
+async function deleteRecord(date,person){if(!confirm('确定删除 '+person+' '+date+' 的记录？'))return;try{await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'delete',name:person,date:date})});showToast('已删除','success');await fetchData();renderHistory();renderOverview()}catch(e){showToast('删除失败')}}
+
+$('save').addEventListener('click',async function(){
+try{
+var weight=parseFloat($('weight').value),nameValue=$('name').value,dateValue=$('date').value;if(!dateValue||isNaN(weight)){showToast('请填写日期和体重');return}
+function n(id){var v=parseFloat($(id).value);return isNaN(v)?'':v}
+function s(id){return($(id).value||'').trim()}
+function i(id){var v=parseInt($(id).value);return isNaN(v)?'':v}
+var data={id:editingId||undefined,action:'save',name:nameValue,date:dateValue,weight:weight,waist:n('waist'),hip:n('hip'),thigh:n('thigh'),calf:n('calf'),arm:n('arm'),breakfast:s('breakfast'),lunch:s('lunch'),dinner:s('dinner'),afternoon:s('afternoon'),dessert:n('dessert'),snack:n('snack'),exercise:n('exercise'),steps:i('steps'),sleep:n('sleep'),stress:i('stress'),note:s('note')};
+var saveBtn=$('save'),saveText=$('saveText');saveBtn.disabled=true;saveText.textContent='保存中...';
+await fetch(API_URL,{method:'POST',body:JSON.stringify(data)});saveBtn.classList.add('success');saveText.textContent='保存成功！';$('msg').innerHTML='';
+if(editingId){editingId=null;$('editId').value=''}else{editingId=null;$('editId').value='';['weight','waist','hip','thigh','calf','arm','breakfast','lunch','dinner','afternoon','dessert','snack','exercise','steps','sleep','stress','note'].forEach(function(id){if($(id))$(id).value=''});$('date').value=new Date().toISOString().slice(0,10)}
+setTimeout(function(){saveBtn.classList.remove('success');saveText.textContent='保存今日记录';saveBtn.disabled=false},2000);
+await fetchData();renderOverview()
+}catch(e){$('saveText').textContent='保存失败';$('save').disabled=false}
 });
 
-// ==================== 记录人切换 ====================
-document.querySelectorAll('.person-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    try {
-      document.querySelectorAll('.person-btn').forEach(function(b) {
-        b.classList.remove('active');
-        b.style.background = 'var(--border)';
-        b.style.color = 'var(--text-secondary)';
-      });
-      btn.classList.add('active');
-      var color = btn.dataset.person === 'Jing' ? 'var(--jing)' : 'var(--esther)';
-      btn.style.background = color;
-      btn.style.color = 'white';
-      $('name').value = btn.dataset.person;
-    } catch(e) {}
-  });
-});
-
-// ==================== 目标设定 ====================
-function loadGoals() {
-  try {
-    var g = JSON.parse(localStorage.getItem('fitGoals') || '{}');
-    if (g.jingWeight) $('goalJingWeight').value = g.jingWeight;
-    if (g.estherWeight) $('goalEstherWeight').value = g.estherWeight;
-    if (g.exercise) $('goalExercise').value = g.exercise;
-  } catch(e) {}
-}
-loadGoals();
-
-$('saveGoal').addEventListener('click', function() {
-  try {
-    var g = {
-      jingWeight: parseFloat($('goalJingWeight').value) || 0,
-      estherWeight: parseFloat($('goalEstherWeight').value) || 0,
-      exercise: parseInt($('goalExercise').value) || 0
-    };
-    localStorage.setItem('fitGoals', JSON.stringify(g));
-    showToast('目标已保存', 'success');
-    renderOverview();
-  } catch(e) {}
-});
-
-// ==================== 数据获取 ====================
-async function fetchData() {
-  try {
-    var res = await fetch(API_URL);
-    allData = await res.json();
-    if (!Array.isArray(allData)) allData = [];
-    return allData;
-  } catch(e) {
-    console.error(e);
-    allData = [];
-    return [];
-  }
-}
-
-function getLatestForPerson(name) {
-  var r = allData.filter(function(d) { return d.name === name; })
-    .sort(function(a, b) { return b.date.localeCompare(a.date); });
-  return r[0] || null;
-}
-
-function getPersonData(name) {
-  return allData.filter(function(d) { return d.name === name; })
-    .sort(function(a, b) { return a.date.localeCompare(b.date); });
-}
-
-function getWeekData(name) {
-  var n = new Date();
-  var w = new Date(n.getTime() - 7 * 86400000).toISOString().slice(0, 10);
-  return allData.filter(function(d) { return d.name === name && d.date >= w; });
-}
-
-// ==================== 概览渲染 ====================
-function renderOverview() {
-  try {
-    if (allData.length === 0) return;
-
-    var goals = JSON.parse(localStorage.getItem('fitGoals') || '{}');
-    var jl = getLatestForPerson('Jing');
-    var el = getLatestForPerson('Esther');
-
-    // ---- Jing 英雄卡片 ----
-    var hj = document.querySelector('#heroJing');
-    if (jl) {
-      hj.querySelector('.hero-person-weight').textContent = jl.weight;
-      var jd = getPersonData('Jing');
-
-      if (jd.length >= 2) {
-        var c = jl.weight - jd[jd.length - 2].weight;
-        hj.querySelector('.hero-person-change').innerHTML =
-          '<span>' + (c > 0 ? '+' : '') + c.toFixed(1) + ' kg</span>';
-      }
-
-      if (goals.jingWeight) {
-        var s = jd[0] && jd[0].weight ? jd[0].weight : jl.weight;
-        var t = s - goals.jingWeight;
-        var d = s - jl.weight;
-        var pct = t > 0 ? Math.min(100, Math.max(0, (d / t) * 100)) : 0;
-        hj.querySelector('.hero-person-progress-bar').style.width = pct + '%';
-        hj.querySelector('.goal-remain').textContent =
-          Math.max(0, (jl.weight - goals.jingWeight)).toFixed(1);
-      }
-    }
-
-    // ---- Esther 英雄卡片 ----
-    var he = document.querySelector('#heroEsther');
-    if (el) {
-      he.querySelector('.hero-person-weight').textContent = el.weight;
-      var ed = getPersonData('Esther');
-
-      if (ed.length >= 2) {
-        var c = el.weight - ed[ed.length - 2].weight;
-        he.querySelector('.hero-person-change').innerHTML =
-          '<span>' + (c > 0 ? '+' : '') + c.toFixed(1) + ' kg</span>';
-      }
-
-      if (goals.estherWeight) {
-        var s = ed[0] && ed[0].weight ? ed[0].weight : el.weight;
-        var t = s - goals.estherWeight;
-        var d = s - el.weight;
-        var pct = t > 0 ? Math.min(100, Math.max(0, (d / t) * 100)) : 0;
-        he.querySelector('.hero-person-progress-bar').style.width = pct + '%';
-        he.querySelector('.goal-remain').textContent =
-          Math.max(0, (el.weight - goals.estherWeight)).toFixed(1);
-      }
-    }
-
-    // ---- 打卡统计 ----
-    var ad = [];
-    allData.forEach(function(d) {
-      if (ad.indexOf(d.date) < 0) ad.push(d.date);
-    });
-    ad.sort().reverse();
-
-    var stk = 0;
-    var tdy = new Date().toISOString().slice(0, 10);
-    var cd = new Date(tdy);
-    for (var i = 0; i < ad.length; i++) {
-      var ex = cd.toISOString().slice(0, 10);
-      if (ad[i] === ex || ad.indexOf(ex) >= 0) {
-        stk++;
-        cd.setDate(cd.getDate() - 1);
-      } else {
-        break;
-      }
-    }
-    $('streakDays').textContent = stk;
-    $('totalDays').textContent = ad.length;
-
-    var wj = getWeekData('Jing');
-    var we = getWeekData('Esther');
-    var jLoss = wj.length >= 2 ? wj[0].weight - wj[wj.length - 1].weight : 0;
-    var eLoss = we.length >= 2 ? we[0].weight - we[we.length - 1].weight : 0;
-    if (jLoss > eLoss) {
-      $('weekBest').textContent = 'Jing 🏆';
-    } else if (eLoss > jLoss) {
-      $('weekBest').textContent = 'Esther 🏆';
-    } else {
-      $('weekBest').textContent = '平手 🤝';
-    }
-
-    renderFeedback(jl, el, wj, we, goals);
-    renderBadges();
-    renderVS(wj, we);
-    renderCalories();
-
-  } catch(ex) {
-    console.error('renderOverview error', ex);
-  }
-}
-
-// ==================== 智能反馈 ====================
-function renderFeedback(jl, el, wj, we, goals) {
-  try {
-    var items = [];
-
-    if (!jl && !el) {
-      $('feedbackList').innerHTML =
-        '<div class="feedback-item info"><span class="fb-icon">📋</span><span>还没有任何数据记录</span></div>';
-      return;
-    }
-
-    function ap(name, latest, wd, gw) {
-      if (!latest) return;
-      var pd = getPersonData(name);
-
-      if (pd.length >= 2) {
-        var c = latest.weight - pd[pd.length - 2].weight;
-        var dir = c > 0.1 ? '上升' : c < -0.1 ? '下降' : '持平';
-        var ad = c > 0.1 ? 'warn' : c < -0.1 ? 'good' : 'info';
-        items.push({
-          type: ad,
-          icon: '⚖️',
-          text: name + ' 体重 ' + latest.weight + ' kg，较上次' + dir + ' ' + Math.abs(c).toFixed(1) + ' kg'
-        });
-      } else {
-        items.push({
-          type: 'info',
-          icon: '⚖️',
-          text: name + ' 体重 ' + latest.weight + ' kg，第一条！'
-        });
-      }
-
-      if (gw && latest.weight > gw) {
-        items.push({
-          type: 'info',
-          icon: '🎯',
-          text: name + ' 距目标还需减 ' + (latest.weight - gw).toFixed(1) + ' kg'
-        });
-      } else if (gw && latest.weight <= gw) {
-        items.unshift({
-          type: 'good',
-          icon: '🎉',
-          text: name + ' 已达到目标 ' + gw + ' kg！'
-        });
-      }
-
-      var ex = latest.exercise || 0;
-      if (ex >= 60) {
-        items.push({ type: 'good', icon: '💪', text: name + ' 运动 ' + ex + ' 分钟' });
-      } else if (ex >= 30) {
-        items.push({ type: 'good', icon: '💪', text: name + ' 运动 ' + ex + ' 分钟' });
-      } else if (ex > 0) {
-        items.push({ type: 'info', icon: '💪', text: name + ' 运动 ' + ex + ' 分钟' });
-      } else {
-        items.push({ type: 'warn', icon: '💤', text: name + ' 暂无运动' });
-      }
-
-      var st = latest.steps || 0;
-      if (st >= 10000) {
-        items.push({ type: 'good', icon: '🚶', text: name + ' 步数 ' + st.toLocaleString() });
-      }
-
-      var sl = latest.sleep || 0;
-      if (sl >= 8) items.push({ type: 'good', icon: '😴', text: name + ' 睡眠 ' + sl + 'h' });
-      else if (sl >= 6) items.push({ type: 'info', icon: '😴', text: name + ' 睡眠 ' + sl + 'h' });
-      else if (sl > 0) items.push({ type: 'warn', icon: '😴', text: name + ' 睡眠 ' + sl + 'h' });
-
-      var cal = (latest.dessert || 0) + (latest.snack || 0);
-      if (cal > 400) {
-        items.push({ type: 'warn', icon: '🍪', text: name + ' 零食 ' + cal + ' kcal' });
-      }
-    }
-
-    ap('Jing', jl, wj, goals.jingWeight);
-    ap('Esther', el, we, goals.estherWeight);
-
-    if (jl && el) {
-      var jEx = jl.exercise || 0;
-      var eEx = el.exercise || 0;
-      var diff = Math.abs(jEx - eEx);
-      if (diff >= 10) {
-        items.push({
-          type: 'compare',
-          icon: '🏆',
-          text: '运动 ' + (jEx > eEx ? 'Jing' : 'Esther') + ' 领先 ' + diff + ' 分钟'
-        });
-      }
-    }
-
-    [['Jing', wj], ['Esther', we]].forEach(function(a) {
-      var n = a[0];
-      var wd = a[1];
-      if (wd.length >= 3) {
-        var s = wd.slice().sort(function(x, y) { return x.date.localeCompare(y.date); });
-        if (s[s.length - 1].weight > s[s.length - 2].weight &&
-            s[s.length - 2].weight > s[s.length - 3].weight) {
-          items.push({ type: 'warn', icon: '⚠️', text: n + ' 体重连续上升' });
-        } else if (s[s.length - 1].weight < s[s.length - 2].weight &&
-                   s[s.length - 2].weight < s[s.length - 3].weight) {
-          items.push({ type: 'good', icon: '📉', text: n + ' 体重连续下降！' });
-        }
-      }
-    });
-
-    $('feedbackList').innerHTML = items.map(function(i) {
-      return '<div class="feedback-item ' + i.type + '">' +
-        '<span class="fb-icon">' + i.icon + '</span>' +
-        '<span>' + i.text + '</span></div>';
-    }).join('');
-
-  } catch(ex) {
-    console.error('renderFeedback', ex);
-  }
-}
-
-// ==================== 徽章 ====================
-function renderBadges() {
-  try {
-    var badges = [
-      { emoji: '📝', name: '初次记录', earned: allData.length > 0 },
-      { emoji: '🔥', name: '连续3天', earned: parseInt($('streakDays').textContent) >= 3 },
-      { emoji: '💎', name: '连续7天', earned: parseInt($('streakDays').textContent) >= 7 },
-      { emoji: '🚶', name: '万步达人', earned: allData.some(function(d) { return d.steps >= 10000; }) },
-      { emoji: '💪', name: '运动1小时', earned: allData.some(function(d) { return d.exercise >= 60; }) },
-      { emoji: '⭐', name: '减重3kg', earned: checkWeightLoss(3) },
-      { emoji: '🌟', name: '减重5kg', earned: checkWeightLoss(5) },
-      { emoji: '📊', name: '30条记录', earned: allData.length >= 30 },
-      { emoji: '😴', name: '优质睡眠', earned: allData.some(function(d) { return d.sleep >= 8; }) }
-    ];
-    $('badgeGrid').innerHTML = badges.map(function(b) {
-      return '<div class="badge-item ' + (b.earned ? 'earned' : 'locked') + '">' +
-        '<div class="badge-emoji">' + b.emoji + '</div>' +
-        '<div class="badge-name">' + b.name + '</div></div>';
-    }).join('');
-  } catch(ex) {}
-}
-
-function checkWeightLoss(t) {
-  for (var i = 0; i < 2; i++) {
-    var d = getPersonData(['Jing', 'Esther'][i]);
-    if (d.length >= 2 && d[0].weight - d[d.length - 1].weight >= t) return true;
-  }
-  return false;
-}
-
-// ==================== 本周对决 ====================
-function renderVS(wj, we) {
-  try {
-    var je = wj.reduce(function(s, d) { return s + (d.exercise || 0); }, 0);
-    var ee = we.reduce(function(s, d) { return s + (d.exercise || 0); }, 0);
-    var t = je + ee;
-
-    if (t === 0) {
-      $('vsLabel').textContent = '本周暂无运动数据';
-      $('vsJingBar').style.width = '50%';
-      $('vsEstherBar').style.width = '50%';
-      return;
-    }
-
-    $('vsTitle').textContent = '本周运动对比';
-    $('vsJingBar').style.width = Math.round((je / t) * 100) + '%';
-    $('vsEstherBar').style.width = Math.round((ee / t) * 100) + '%';
-
-    if (je > ee) {
-      $('vsLabel').textContent = 'Jing ' + je + '分钟 领先' + (je - ee) + '分钟 🏆';
-    } else if (ee > je) {
-      $('vsLabel').textContent = 'Esther ' + ee + '分钟 领先' + (ee - je) + '分钟 🏆';
-    } else {
-      $('vsLabel').textContent = '两人持平 🤝';
-    }
-  } catch(ex) {}
-}
-
-// ==================== 趋势图表 ====================
-function renderChart() {
-  try {
-    if (allData.length === 0 || !$('chart')) return;
-
-    var ctx = $('chart').getContext('2d');
-    if (chart) chart.destroy();
-
-    var filtered = allData.slice();
-    if (currentTimeRange !== 'all') {
-      var days = parseInt(currentTimeRange);
-      var cutoff = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
-      filtered = filtered.filter(function(d) { return d.date >= cutoff; });
-    }
-    filtered.sort(function(a, b) { return a.date.localeCompare(b.date); });
-
-    var jd = filtered.filter(function(d) { return d.name === 'Jing'; });
-    var ed = filtered.filter(function(d) { return d.name === 'Esther'; });
-
-    var labels = [];
-    filtered.forEach(function(d) {
-      if (labels.indexOf(d.date) < 0) labels.push(d.date);
-    });
-    labels.sort();
-
-    var datasets = [];
-    var scalesConfig = {
-      x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
-      y: { grid: { color: '#F0EEF5' } }
-    };
-
-    if (currentChartType === 'weight') {
-      datasets.push({
-        label: 'Jing',
-        data: labels.map(function(d) {
-          var r = jd.find(function(x) { return x.date === d; });
-          return r ? r.weight : null;
-        }),
-        borderColor: '#FF6B6B',
-        backgroundColor: 'rgba(255,107,107,0.15)',
-        fill: true, tension: 0.3, borderWidth: 3, pointRadius: 3
-      });
-      datasets.push({
-        label: 'Esther',
-        data: labels.map(function(d) {
-          var r = ed.find(function(x) { return x.date === d; });
-          return r ? r.weight : null;
-        }),
-        borderColor: '#7C5CFC',
-        backgroundColor: 'rgba(124,92,252,0.15)',
-        fill: true, tension: 0.3, borderWidth: 3, pointRadius: 3
-      });
-
-    } else if (currentChartType === 'circumference') {
-      datasets.push({
-        label: 'Jing-腰围',
-        data: labels.map(function(d) {
-          var r = jd.find(function(x) { return x.date === d; });
-          return r && r.waist ? r.waist : null;
-        }),
-        borderColor: '#FF6B6B', borderWidth: 2, tension: 0.3, pointRadius: 2, fill: false
-      });
-      datasets.push({
-        label: 'Jing-臀围',
-        data: labels.map(function(d) {
-          var r = jd.find(function(x) { return x.date === d; });
-          return r && r.hip ? r.hip : null;
-        }),
-        borderColor: '#FF9E9E', borderWidth: 2, tension: 0.3, pointRadius: 2,
-        fill: false, borderDash: [5, 3]
-      });
-      datasets.push({
-        label: 'Esther-腰围',
-        data: labels.map(function(d) {
-          var r = ed.find(function(x) { return x.date === d; });
-          return r && r.waist ? r.waist : null;
-        }),
-        borderColor: '#7C5CFC', borderWidth: 2, tension: 0.3, pointRadius: 2, fill: false
-      });
-      datasets.push({
-        label: 'Esther-臀围',
-        data: labels.map(function(d) {
-          var r = ed.find(function(x) { return x.date === d; });
-          return r && r.hip ? r.hip : null;
-        }),
-        borderColor: '#B09EFF', borderWidth: 2, tension: 0.3, pointRadius: 2,
-        fill: false, borderDash: [5, 3]
-      });
-
-    } else if (currentChartType === 'activity') {
-      scalesConfig.y = {
-        position: 'left',
-        grid: { color: '#F0EEF5' },
-        title: { display: true, text: '分钟' }
-      };
-      scalesConfig.y1 = {
-        position: 'right',
-        grid: { display: false },
-        title: { display: true, text: '小时' }
-      };
-
-      datasets.push({
-        label: 'Jing-运动',
-        data: labels.map(function(d) {
-          var r = jd.find(function(x) { return x.date === d; });
-          return r && r.exercise ? r.exercise : null;
-        }),
-        borderColor: '#FF6B6B', borderWidth: 2, tension: 0.3,
-        pointRadius: 2, fill: false, yAxisID: 'y'
-      });
-      datasets.push({
-        label: 'Esther-运动',
-        data: labels.map(function(d) {
-          var r = ed.find(function(x) { return x.date === d; });
-          return r && r.exercise ? r.exercise : null;
-        }),
-        borderColor: '#7C5CFC', borderWidth: 2, tension: 0.3,
-        pointRadius: 2, fill: false, yAxisID: 'y'
-      });
-      datasets.push({
-        label: 'Jing-睡眠',
-        data: labels.map(function(d) {
-          var r = jd.find(function(x) { return x.date === d; });
-          return r && r.sleep ? r.sleep : null;
-        }),
-        borderColor: '#4ECDC4', borderWidth: 2, tension: 0.3,
-        pointRadius: 2, fill: false, yAxisID: 'y1', borderDash: [3, 3]
-      });
-      datasets.push({
-        label: 'Esther-睡眠',
-        data: labels.map(function(d) {
-          var r = ed.find(function(x) { return x.date === d; });
-          return r && r.sleep ? r.sleep : null;
-        }),
-        borderColor: '#FFB347', borderWidth: 2, tension: 0.3,
-        pointRadius: 2, fill: false, yAxisID: 'y1', borderDash: [3, 3]
-      });
-    }
-
-    chart = new Chart(ctx, {
-      type: 'line',
-      data: { labels: labels, datasets: datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { usePointStyle: true, padding: 20, boxWidth: 8, font: { size: 12 } }
-          }
-        },
-        scales: scalesConfig
-      }
-    });
-
-    renderTrendSummary(filtered);
-
-  } catch(ex) {
-    console.error('renderChart', ex);
-  }
-}
-
-// ==================== 趋势统计汇总（按人分开）====================
-function renderTrendSummary(f) {
-  try {
-    var cutoff = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-    var wd = f.filter(function(d) { return d.date >= cutoff; });
-
-    function calc(name) {
-      var d = wd.filter(function(x) { return x.name === name; })
-        .sort(function(a, b) { return a.date.localeCompare(b.date); });
-
-      if (d.length === 0) return { w: '--', e: '--', s: '--' };
-
-      // 最新体重
-      var w = d[d.length - 1].weight.toFixed(1) + ' kg';
-
-      // 运动总时长
-      var ex = d.filter(function(x) { return x.exercise; })
-        .reduce(function(s, x) { return s + (x.exercise || 0); }, 0);
-      var e = ex > 0 ? (ex / 60).toFixed(1) + ' h' : '--';
-
-      // 平均睡眠
-      var sl = d.filter(function(x) { return x.sleep; })
-        .reduce(function(s, x) { return s + (x.sleep || 0); }, 0);
-      var s = sl > 0 ? (sl / d.length).toFixed(1) + ' h' : '--';
-
-      return { w: w, e: e, s: s };
-    }
-
-    var jr = calc('Jing');
-    var er = calc('Esther');
-
-    $('tsJWeight').textContent = jr.w;
-    $('tsJExercise').textContent = '运动 ' + jr.e;
-    $('tsJSleep').textContent = '睡眠 ' + jr.s;
-
-    $('tsEWeight').textContent = er.w;
-    $('tsEExercise').textContent = '运动 ' + er.e;
-    $('tsESleep').textContent = '睡眠 ' + er.s;
-
-  } catch(ex) {}
-}
-
-// 图表类型 & 时间切换
-document.querySelectorAll('#chartTypeTabs .chart-tab').forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('#chartTypeTabs .chart-tab').forEach(function(t) {
-      t.classList.remove('active');
-    });
-    tab.classList.add('active');
-    currentChartType = tab.dataset.chart;
-    renderChart();
-  });
-});
-
-document.querySelectorAll('#timeTabs .chart-tab').forEach(function(tab) {
-  tab.addEventListener('click', function() {
-    document.querySelectorAll('#timeTabs .chart-tab').forEach(function(t) {
-      t.classList.remove('active');
-    });
-    tab.classList.add('active');
-    currentTimeRange = tab.dataset.range;
-    renderChart();
-  });
-});
-
-// ==================== 历史记录 ====================
-async function renderHistory() {
-  try {
-    if (allData.length === 0) await fetchData();
-
-    var person = $('historyPerson').value;
-    var period = $('historyPeriod').value;
-    var filtered = allData.slice();
-
-    if (person !== 'all') {
-      filtered = filtered.filter(function(d) { return d.name === person; });
-    }
-    if (period !== 'all') {
-      var cutoff = new Date(Date.now() - parseInt(period) * 86400000).toISOString().slice(0, 10);
-      filtered = filtered.filter(function(d) { return d.date >= cutoff; });
-    }
-
-    filtered.sort(function(a, b) { return b.date.localeCompare(a.date); });
-
-    if (filtered.length === 0) {
-      $('historyList').innerHTML =
-        '<div class="feedback-item info"><span class="fb-icon">📋</span><span>暂无记录</span></div>';
-      return;
-    }
-
-    $('historyList').innerHTML = filtered.map(function(d) {
-      var summary = [
-        d.exercise ? '🏃' + d.exercise + 'min' : '',
-        d.steps ? '🚶' + d.steps + '步' : '',
-        d.sleep ? '😴' + d.sleep + 'h' : ''
-      ].filter(Boolean).join(' ');
-
-      var nameColor = d.name === 'Jing' ? 'var(--jing)' : 'var(--esther)';
-
-      return '<div class="history-item">' +
-        '<div class="hi-left">' +
-          '<div class="hi-date">' + d.date + ' · ' +
-            '<span style="color:' + nameColor + '">' + d.name + '</span>' +
-          '</div>' +
-          '<div class="hi-summary">' + (summary || '') + '</div>' +
-        '</div>' +
-        '<div class="hi-right">' +
-          '<div class="hi-weight">' + d.weight +
-            '<span style="font-size:13px;color:var(--text-muted)">kg</span>' +
-          '</div>' +
-          '<div class="hi-actions">' +
-            '<button class="btn btn-sm btn-outline" onclick="editRecord(\'' + d.date + '\',\'' + d.name + '\')">✏️</button>' +
-            '<button class="btn btn-sm btn-outline" onclick="deleteRecord(\'' + d.date + '\',\'' + d.name + '\')" style="color:var(--danger)">🗑</button>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-
-  } catch(ex) {
-    console.error('renderHistory', ex);
-  }
-}
-
-$('historyPerson').addEventListener('change', renderHistory);
-$('historyPeriod').addEventListener('change', renderHistory);
-$('refreshHistory').addEventListener('click', async function() {
-  await fetchData();
-  renderHistory();
-  renderOverview();
-});
-
-// ==================== 编辑 / 删除记录 ====================
-async function editRecord(date, person) {
-  try {
-    var records = allData.filter(function(d) {
-      return d.date === date && d.name === person;
-    }).sort(function(a, b) {
-      var ta = a.id || a.time || '';
-      var tb = b.id || b.time || '';
-      return String(tb).localeCompare(String(ta));
-    });
-    var record = records[0];
-    if (!record) return;
-
-    document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
-    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-    var recBtn = document.querySelector('[data-page="record"]');
-    if (recBtn) recBtn.classList.add('active');
-    var recPg = $('page-record');
-    if (recPg) recPg.classList.add('active');
-
-    $('name').value = person;
-    document.querySelectorAll('.person-btn').forEach(function(b) {
-      b.classList.remove('active');
-      b.style.background = 'var(--border)';
-      b.style.color = 'var(--text-secondary)';
-      if (b.dataset.person === person) {
-        b.classList.add('active');
-        b.style.background = person === 'Jing' ? 'var(--jing)' : 'var(--esther)';
-        b.style.color = 'white';
-      }
-    });
-
-    $('date').value = date;
-    editingId = record.id || null;
-    $('editId').value = editingId || '';
-
-    ['weight','waist','hip','thigh','calf','arm','dessert','snack','exercise','steps','sleep','stress']
-      .forEach(function(f) {
-        if ($(f) && record[f] != null) $(f).value = record[f];
-      });
-    ['breakfast','lunch','dinner','afternoon'].forEach(function(f) {
-      if ($(f)) $(f).value = record[f] || '';
-    });
-    if ($('note')) $('note').value = record.note || '';
-
-    $('saveText').textContent = '✏️ 更新记录';
-    $('msg').innerHTML =
-      '<span style="color:var(--esther)">编辑 ' + person + ' ' + date + '</span>';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  } catch(ex) {
-    console.error('editRecord', ex);
-  }
-}
-
-async function deleteRecord(date, person) {
-  if (!confirm('确定删除 ' + person + ' ' + date + ' 的记录？')) return;
-  try {
-    await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'delete', name: person, date: date })
-    });
-    showToast('已删除', 'success');
-    await fetchData();
-    renderHistory();
-    renderOverview();
-  } catch(e) {
-    showToast('删除失败');
-  }
-}
-
-// ==================== 保存记录 ====================
-$('save').addEventListener('click', async function() {
-  try {
-    var weight = parseFloat($('weight').value);
-    var nameValue = $('name').value;
-    var dateValue = $('date').value;
-
-    if (!dateValue || isNaN(weight)) {
-      showToast('请填写日期和体重');
-      return;
-    }
-
-    function n(id) { var v = parseFloat($(id).value); return isNaN(v) ? '' : v; }
-    function s(id) { return ($(id).value || '').trim(); }
-    function i(id) { var v = parseInt($(id).value); return isNaN(v) ? '' : v; }
-
-    var data = {
-      id: editingId || undefined,
-      action: 'save',
-      name: nameValue,
-      date: dateValue,
-      weight: weight,
-      waist: n('waist'),
-      hip: n('hip'),
-      thigh: n('thigh'),
-      calf: n('calf'),
-      arm: n('arm'),
-      breakfast: s('breakfast'),
-      lunch: s('lunch'),
-      dinner: s('dinner'),
-      afternoon: s('afternoon'),
-      dessert: n('dessert'),
-      snack: n('snack'),
-      exercise: n('exercise'),
-      steps: i('steps'),
-      sleep: n('sleep'),
-      stress: i('stress'),
-      note: s('note')
-    };
-
-    var saveBtn = $('save');
-    var saveText = $('saveText');
-    saveBtn.disabled = true;
-    saveText.textContent = '保存中...';
-
-    await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
-
-    saveBtn.classList.add('success');
-    saveText.textContent = '保存成功！';
-    $('msg').innerHTML = '';
-
-    if (!editingId) {
-      ['weight','waist','hip','thigh','calf','arm','breakfast','lunch','dinner',
-       'afternoon','dessert','snack','exercise','steps','sleep','stress','note']
-        .forEach(function(id) { if ($(id)) $(id).value = ''; });
-      $('date').value = new Date().toISOString().slice(0, 10);
-    }
-
-    editingId = null;
-    $('editId').value = '';
-
-    setTimeout(function() {
-      saveBtn.classList.remove('success');
-      saveText.textContent = '保存今日记录';
-      saveBtn.disabled = false;
-    }, 2000);
-
-    await fetchData();
-    renderOverview();
-
-  } catch(e) {
-    $('saveText').textContent = '保存失败';
-    $('save').disabled = false;
-  }
-});
-
-// ==================== Service Worker & 初始化 ====================
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(function() {});
-}
-
-(async function init() {
-  await fetchData();
-  renderOverview();
-})();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){})}
+(async function init(){await fetchData();renderOverview()})();
 </script>
 </body>
 </html>
