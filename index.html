@@ -166,32 +166,33 @@ body{margin:0;padding:0 0 90px;background:var(--bg);font-family:-apple-system,Bl
 </nav>
 
 <script>
-
+// ============================================================
+// ⚠️⚠️⚠️ 替换成你自己的 Web 应用 URL ⚠️⚠️⚠️
+// ============================================================
 const API_URL = "https://script.google.com/macros/s/AKfycbweAY1NCkdpOv0I6v08x4eLsFS7UPDkR6QA6vCS9ZLrwhKJm6-yAkGoxxc_Lh082O664A/exec";
 
 let allData=[],chart=null,currentChartType='weight',currentTimeRange='7',editingId=null;
 const $=id=>document.getElementById(id);
 try{$('date').value=new Date().toISOString().slice(0,10)}catch(e){}
 
-// ====== 热量估算 ======
+// ====== 热量估算（含加餐 + AI标记）======
 async function renderCalories(){
 try{
 if(allData.length===0)return;const today=new Date().toISOString().slice(0,10);
 for(const name of['Jing','Esther']){const calEl=document.getElementById('cal'+name),detailEl=document.getElementById('cal'+name+'Detail');if(!calEl||!detailEl)continue;
 const todayRecords=allData.filter(d=>d.name===name&&d.date===today);
-if(todayRecords.length===0){calEl.textContent='--';detailEl.textContent='(今天还没记录)';continue}
+if(todayRecords.length===0){calEl.textContent='--';detailEl.textContent='';continue}
 const latest=todayRecords.sort((a,b)=>{const ta=a.id||a.time||'',tb=b.id||b.time||'';return String(tb).localeCompare(String(ta))})[0];
 const meals=[];if(latest.breakfast)meals.push('早餐：'+latest.breakfast);if(latest.lunch)meals.push('午餐：'+latest.lunch);if(latest.dinner)meals.push('晚餐：'+latest.dinner);if(latest.afternoon)meals.push('加餐：'+latest.afternoon);const foodText=meals.join('；');
-if(meals.length===0){calEl.textContent='--';detailEl.textContent='(无饮食记录)';continue}
+if(meals.length===0){calEl.textContent='--';detailEl.textContent='';continue}
 calEl.textContent='...';detailEl.textContent='AI分析中...';
-try{const resp=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'analyze_food',text:foodText})});const raw=await resp.text();let r;try{r=JSON.parse(raw)}catch(pe){detailEl.textContent='API异常: '+raw.substring(0,80);continue}if(r.error){detailEl.textContent='AI错误: '+r.error;continue}if(r.totalCal>0){calEl.textContent=r.totalCal;const p=[];if(r.breakfast?.total)p.push('早'+r.breakfast.total);if(r.lunch?.total)p.push('午'+r.lunch.total);if(r.dinner?.total)p.push('晚'+r.dinner.total);detailEl.textContent=(p.length?p.join('+')+' = '+r.totalCal+' kcal':'AI: '+r.totalCal+' kcal')}else{detailEl.textContent='AI返回0'}}catch(e){detailEl.textContent='网络异常: '+e.message}}
+try{const resp=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'analyze_food',text:foodText})});const raw=await resp.text();let r;try{r=JSON.parse(raw)}catch(pe){detailEl.textContent='API异常: '+raw.substring(0,60);continue}if(r.error){detailEl.textContent='AI错误: '+r.error;continue}if(r.totalCal>0){calEl.textContent=r.totalCal;const p=[];if(r.breakfast?.total)p.push('早'+r.breakfast.total);if(r.lunch?.total)p.push('午'+r.lunch.total);if(r.dinner?.total)p.push('晚'+r.dinner.total);if(r.afternoon?.total)p.push('加餐'+r.afternoon.total);detailEl.textContent='AI · '+(p.length?p.join('+')+' = '+r.totalCal+' kcal':r.totalCal+' kcal')}else{detailEl.textContent='AI返回0'}}catch(e){detailEl.textContent='网络异常: '+e.message}}
 const jC=parseInt(document.getElementById('calJing')?.textContent)||0,eC=parseInt(document.getElementById('calEsther')?.textContent)||0,cmp=document.getElementById('calCompare');if(cmp&&jC&&eC){if(jC<eC)cmp.textContent='Jing 比 Esther 少摄入 '+(eC-jC)+' kcal 🥗';else if(eC<jC)cmp.textContent='Esther 比 Jing 少摄入 '+(jC-eC)+' kcal 🥗';else cmp.textContent='两人摄入热量相当 🤝'}
-}catch(ex){console.error('renderCalories error',ex)}
+}catch(ex){console.error('renderCalories',ex)}
 }
 
 function showToast(msg,type){try{const t=$('toast');t.textContent=msg;t.className='toast '+(type||'')+' show';setTimeout(function(){t.className='toast'},2000)}catch(e){}}
 
-// 导航
 document.querySelectorAll('.nav-item').forEach(function(btn){btn.addEventListener('click',function(){try{document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('active')});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});btn.classList.add('active');var page=$('page-'+btn.dataset.page);if(page)page.classList.add('active');if(btn.dataset.page==='trends')renderChart();if(btn.dataset.page==='history')renderHistory();if(btn.dataset.page==='overview')renderOverview()}catch(e){}})});
 document.querySelectorAll('.person-btn').forEach(function(btn){btn.addEventListener('click',function(){try{document.querySelectorAll('.person-btn').forEach(function(b){b.classList.remove('active');b.style.background='var(--border)';b.style.color='var(--text-secondary)'});btn.classList.add('active');var color=btn.dataset.person==='Jing'?'var(--jing)':'var(--esther)';btn.style.background=color;btn.style.color='white';$('name').value=btn.dataset.person}catch(e){}})});
 
@@ -206,7 +207,7 @@ function getWeekData(name){var n=new Date(),w=new Date(n.getTime()-7*86400000).t
 function renderOverview(){
 try{
 if(allData.length===0)return;var goals=JSON.parse(localStorage.getItem('fitGoals')||'{}'),jl=getLatestForPerson('Jing'),el=getLatestForPerson('Esther');
-var hj=document.querySelector('#heroJing');if(jl){hj.querySelector('.hero-person-weight').textContent=jl.weight;var jd=getPersonData('Jing');if(jd.length>=2){var p=jd[jd.length-2].weight,c=jl.weight-p,a=c>0?'↑':c<0?'↓':'→';hj.querySelector('.hero-person-change').innerHTML='<span>'+(c>0?'+':'')+c.toFixed(1)+' kg</span>'}if(goals.jingWeight){var s=jd[0]&&jd[0].weight?jd[0].weight:jl.weight,t=s-goals.jingWeight,d=s-jl.weight,pct=t>0?Math.min(100,Math.max(0,(d/t)*100)):0;hj.querySelector('.hero-person-progress-bar').style.width=pct+'%';hj.querySelector('.goal-remain').textContent=Math.max(0,(jl.weight-goals.jingWeight)).toFixed(1)}}
+var hj=document.querySelector('#heroJing');if(jl){hj.querySelector('.hero-person-weight').textContent=jl.weight;var jd=getPersonData('Jing');if(jd.length>=2){var p=jd[jd.length-2].weight,c=jl.weight-p;hj.querySelector('.hero-person-change').innerHTML='<span>'+(c>0?'+':'')+c.toFixed(1)+' kg</span>'}if(goals.jingWeight){var s=jd[0]&&jd[0].weight?jd[0].weight:jl.weight,t=s-goals.jingWeight,d=s-jl.weight,pct=t>0?Math.min(100,Math.max(0,(d/t)*100)):0;hj.querySelector('.hero-person-progress-bar').style.width=pct+'%';hj.querySelector('.goal-remain').textContent=Math.max(0,(jl.weight-goals.jingWeight)).toFixed(1)}}
 var he=document.querySelector('#heroEsther');if(el){he.querySelector('.hero-person-weight').textContent=el.weight;var ed=getPersonData('Esther');if(ed.length>=2){var p=ed[ed.length-2].weight,c=el.weight-p;he.querySelector('.hero-person-change').innerHTML='<span>'+(c>0?'+':'')+c.toFixed(1)+' kg</span>'}if(goals.estherWeight){var s=ed[0]&&ed[0].weight?ed[0].weight:el.weight,t=s-goals.estherWeight,d=s-el.weight,pct=t>0?Math.min(100,Math.max(0,(d/t)*100)):0;he.querySelector('.hero-person-progress-bar').style.width=pct+'%';he.querySelector('.goal-remain').textContent=Math.max(0,(el.weight-goals.estherWeight)).toFixed(1)}}
 var ad=[];allData.forEach(function(d){if(ad.indexOf(d.date)<0)ad.push(d.date)});ad.sort().reverse();var stk=0,tdy=new Date().toISOString().slice(0,10),cd=new Date(tdy);for(var i=0;i<ad.length;i++){var ex=cd.toISOString().slice(0,10);if(ad[i]===ex||ad.indexOf(ex)>=0){stk++;cd.setDate(cd.getDate()-1)}else break}$('streakDays').textContent=stk;$('totalDays').textContent=ad.length;
 var wj=getWeekData('Jing'),we=getWeekData('Esther'),jLoss=wj.length>=2?wj[0].weight-wj[wj.length-1].weight:0,eLoss=we.length>=2?we[0].weight-we[we.length-1].weight:0;if(jLoss>eLoss)$('weekBest').textContent='Jing 🏆';else if(eLoss>jLoss)$('weekBest').textContent='Esther 🏆';else $('weekBest').textContent='平手 🤝';
@@ -230,7 +231,6 @@ function renderVS(wj,we){
 try{var je=wj.reduce(function(s,d){return s+(d.exercise||0)},0),ee=we.reduce(function(s,d){return s+(d.exercise||0)},0),t=je+ee;if(t===0){$('vsLabel').textContent='本周暂无运动数据';$('vsJingBar').style.width='50%';$('vsEstherBar').style.width='50%';return}$('vsTitle').textContent='本周运动对比';$('vsJingBar').style.width=Math.round((je/t)*100)+'%';$('vsEstherBar').style.width=Math.round((ee/t)*100)+'%';if(je>ee)$('vsLabel').textContent='Jing 本周 '+je+' 分钟，领先 '+(je-ee)+' 分钟 🏆';else if(ee>je)$('vsLabel').textContent='Esther 本周 '+ee+' 分钟，领先 '+(ee-je)+' 分钟 🏆';else $('vsLabel').textContent='两人持平 🤝'}catch(ex){}
 }
 
-// ====== 图表 ======
 function renderChart(){
 try{
 if(allData.length===0||!$('chart'))return;var ctx=$('chart').getContext('2d');if(chart)chart.destroy();
