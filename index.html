@@ -73,6 +73,10 @@ body{margin:0;padding:0 0 90px;background:var(--bg);font-family:-apple-system,Bl
 .feedback-item.warn{background:var(--warn-light);border-left:3px solid var(--warn)}
 .feedback-item.info{background:var(--esther-light);border-left:3px solid var(--esther)}
 .feedback-item.compare{background:var(--jing-light);border-left:3px solid var(--jing)}
+.food-quality{display:inline-flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;font-size:11px;flex-wrap:wrap}
+.food-quality .q-grade{display:inline-block;min-width:22px;height:22px;line-height:22px;border-radius:50%;font-weight:700;font-size:12px;text-align:center;color:#fff;padding:0 5px}
+.q-grade.A{background:#4ECDC4}.q-grade.B{background:#7C5CFC}.q-grade.C{background:#FFB347}.q-grade.D{background:#FF6B6B}
+.food-quality .q-tip{color:var(--text-muted);line-height:1.4;max-width:120px}
 .chart-tabs{display:flex;gap:6px;margin-bottom:14px;background:#F5F4F7;border-radius:var(--radius-sm);padding:4px}
 .chart-tab{flex:1;text-align:center;padding:8px 0;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);border:none;background:transparent;font-family:inherit;color:var(--text-secondary)}
 .chart-tab.active{background:white;color:var(--text);box-shadow:var(--shadow-sm)}.time-tabs{justify-content:center}
@@ -120,8 +124,8 @@ body{margin:0;padding:0 0 90px;background:var(--bg);font-family:-apple-system,Bl
 
 <div class="card" style="margin-top:14px"><div class="card-header"><span class="icon">🔥</span>今日热量摄入</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-<div style="text-align:center;padding:16px;background:var(--jing-light);border-radius:var(--radius-md)"><div style="font-size:13px;font-weight:600;color:var(--jing);margin-bottom:6px">Jing</div><div style="font-size:30px;font-weight:800" id="calJing">--</div><div style="font-size:12px;color:var(--text-muted)">kcal</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calJingDetail"></div></div>
-<div style="text-align:center;padding:16px;background:var(--esther-light);border-radius:var(--radius-md)"><div style="font-size:13px;font-weight:600;color:var(--esther);margin-bottom:6px">Esther</div><div style="font-size:30px;font-weight:800" id="calEsther">--</div><div style="font-size:12px;color:var(--text-muted)">kcal</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calEstherDetail"></div></div>
+<div style="text-align:center;padding:16px;background:var(--jing-light);border-radius:var(--radius-md)"><div style="font-size:13px;font-weight:600;color:var(--jing);margin-bottom:6px">Jing</div><div style="font-size:30px;font-weight:800" id="calJing">--</div><div style="font-size:12px;color:var(--text-muted)">kcal</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calJingDetail"></div><div class="food-quality" id="calJingQuality"></div></div>
+<div style="text-align:center;padding:16px;background:var(--esther-light);border-radius:var(--radius-md)"><div style="font-size:13px;font-weight:600;color:var(--esther);margin-bottom:6px">Esther</div><div style="font-size:30px;font-weight:800" id="calEsther">--</div><div style="font-size:12px;color:var(--text-muted)">kcal</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px" id="calEstherDetail"></div><div class="food-quality" id="calEstherQuality"></div></div>
 </div>
 <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-muted)" id="calCompare"></div></div>
 
@@ -166,37 +170,35 @@ body{margin:0;padding:0 0 90px;background:var(--bg);font-family:-apple-system,Bl
 </nav>
 
 <script>
-// ⚠️ 替换成你自己的 Google Apps Script Web 应用 URL
 const API_URL = "https://script.google.com/macros/s/AKfycbweAY1NCkdpOv0I6v08x4eLsFS7UPDkR6QA6vCS9ZLrwhKJm6-yAkGoxxc_Lh082O664A/exec";
 
 let allData=[],chart=null,currentChartType='weight',currentTimeRange='7',editingId=null;
 const $=id=>document.getElementById(id);
 try{$('date').value=new Date().toISOString().slice(0,10)}catch(e){}
 
-	// ====== 热量估算（含加餐 + AI标记 + 饮食质量评分 + localStorage缓存）v19 ======
-		function calCacheKey(name,foodText){return'cal_'+name+'_'+foodText.split('').reduce(function(s,c){return((s<<5)-s)+c.charCodeAt(0)|0},0)}
-		function calCacheGet(name,foodText){try{var k=calCacheKey(name,foodText),v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
-		function calCacheSet(name,foodText,data){try{var k=calCacheKey(name,foodText);localStorage.setItem(k,JSON.stringify(data))}catch(e){}}
-		function renderQuality(qEl,data){if(!qEl||!data||!data.quality){qEl.innerHTML='';return}var q=data.quality,g=q.score||(q.grade||'');var gradeEl=g?'<span class="q-grade '+g+'">'+g+'</span>':'';var tip=q.tip||'';qEl.innerHTML=gradeEl+(tip?'<span class="q-tip">'+tip+'</span>':'')}
-		function calDisplay(calEl,detailEl,data,qEl){calEl.textContent=data.totalCal;var p=[];if(data.breakfast&&data.breakfast.total)p.push('早'+data.breakfast.total);if(data.lunch&&data.lunch.total)p.push('午'+data.lunch.total);if(data.dinner&&data.dinner.total)p.push('晚'+data.dinner.total);if(data.afternoon&&data.afternoon.total)p.push('加餐'+data.afternoon.total);detailEl.textContent='AI · '+(p.length?p.join('+')+' = '+data.totalCal+' kcal':data.totalCal+' kcal');if(qEl)renderQuality(qEl,data)}
-		async function renderCalories(){
-		try{
-		if(allData.length===0)return;const today=new Date().toISOString().slice(0,10);
-		for(const name of['Jing','Esther']){const calEl=document.getElementById('cal'+name),detailEl=document.getElementById('cal'+name+'Detail'),qEl=document.getElementById('cal'+name+'Quality');if(!calEl||!detailEl)continue;
-		const todayRecords=allData.filter(d=>d.name===name&&d.date===today);
-		if(todayRecords.length===0){calEl.textContent='--';detailEl.textContent='';if(qEl)qEl.innerHTML='';continue}
-		const latest=todayRecords.sort((a,b)=>{const ta=a.id||a.time||'',tb=b.id||b.time||'';return String(tb).localeCompare(String(ta))})[0];
-		const meals=[];if(latest.breakfast)meals.push('早餐：'+latest.breakfast);if(latest.lunch)meals.push('午餐：'+latest.lunch);if(latest.dinner)meals.push('晚餐：'+latest.dinner);if(latest.afternoon)meals.push('加餐：'+latest.afternoon);const foodText=meals.join('；');
-		if(meals.length===0){calEl.textContent='--';detailEl.textContent='';if(qEl)qEl.innerHTML='';continue}
-		// 先从缓存取
-		var cached=calCacheGet(name,foodText);
-		if(cached){calDisplay(calEl,detailEl,cached,qEl);continue}
-		calEl.textContent='...';detailEl.textContent='AI分析中...';if(qEl)qEl.innerHTML='';
-		try{const resp=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'analyze_food',text:foodText})});const raw=await resp.text();let r;try{r=JSON.parse(raw)}catch(pe){detailEl.textContent='API异常: '+raw.substring(0,60);continue}if(r.error){detailEl.textContent='AI错误: '+r.error;continue}if(r.totalCal>0){calDisplay(calEl,detailEl,r,qEl);calCacheSet(name,foodText,r)}else{detailEl.textContent='AI返回0'}}catch(e){detailEl.textContent='网络异常: '+e.message}}
-		const jC=parseInt(document.getElementById('calJing')?.textContent)||0,eC=parseInt(document.getElementById('calEsther')?.textContent)||0,cmp=document.getElementById('calCompare');if(cmp&&jC&&eC){if(jC<eC)cmp.textContent='Jing 比 Esther 少摄入 '+(eC-jC)+' kcal 🥗';else if(eC<jC)cmp.textContent='Esther 比 Jing 少摄入 '+(jC-eC)+' kcal 🥗';else cmp.textContent='两人摄入热量相当 🤝'}
-		}catch(ex){console.error('renderCalories',ex)}
-		}
-
+// ====== 热量估算（含加餐 + AI标记 + 饮食质量评分 + localStorage缓存）v19 ======
+	function calCacheKey(name,foodText){return'cal_'+name+'_'+foodText.split('').reduce(function(s,c){return((s<<5)-s)+c.charCodeAt(0)|0},0)}
+	function calCacheGet(name,foodText){try{var k=calCacheKey(name,foodText),v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+	function calCacheSet(name,foodText,data){try{var k=calCacheKey(name,foodText);localStorage.setItem(k,JSON.stringify(data))}catch(e){}}
+	function renderQuality(qEl,data){if(!qEl||!data||!data.quality){qEl.innerHTML='';return}var q=data.quality,g=q.score||(q.grade||'');var gradeEl=g?'<span class="q-grade '+g+'">'+g+'</span>':'';var tip=q.tip||'';qEl.innerHTML=gradeEl+(tip?'<span class="q-tip">'+tip+'</span>':'')}
+	function calDisplay(calEl,detailEl,data,qEl){calEl.textContent=data.totalCal;var p=[];if(data.breakfast&&data.breakfast.total)p.push('早'+data.breakfast.total);if(data.lunch&&data.lunch.total)p.push('午'+data.lunch.total);if(data.dinner&&data.dinner.total)p.push('晚'+data.dinner.total);if(data.afternoon&&data.afternoon.total)p.push('加餐'+data.afternoon.total);detailEl.textContent='AI · '+(p.length?p.join('+')+' = '+data.totalCal+' kcal':data.totalCal+' kcal');if(qEl)renderQuality(qEl,data)}
+	async function renderCalories(){
+	try{
+	if(allData.length===0)return;const today=new Date().toISOString().slice(0,10);
+	for(const name of['Jing','Esther']){const calEl=document.getElementById('cal'+name),detailEl=document.getElementById('cal'+name+'Detail'),qEl=document.getElementById('cal'+name+'Quality');if(!calEl||!detailEl)continue;
+	const todayRecords=allData.filter(d=>d.name===name&&d.date===today);
+	if(todayRecords.length===0){calEl.textContent='--';detailEl.textContent='';if(qEl)qEl.innerHTML='';continue}
+	const latest=todayRecords.sort((a,b)=>{const ta=a.id||a.time||'',tb=b.id||b.time||'';return String(tb).localeCompare(String(ta))})[0];
+	const meals=[];if(latest.breakfast)meals.push('早餐：'+latest.breakfast);if(latest.lunch)meals.push('午餐：'+latest.lunch);if(latest.dinner)meals.push('晚餐：'+latest.dinner);if(latest.afternoon)meals.push('加餐：'+latest.afternoon);const foodText=meals.join('；');
+	if(meals.length===0){calEl.textContent='--';detailEl.textContent='';if(qEl)qEl.innerHTML='';continue}
+	// 先从缓存取
+	var cached=calCacheGet(name,foodText);
+	if(cached){calDisplay(calEl,detailEl,cached,qEl);continue}
+	calEl.textContent='...';detailEl.textContent='AI分析中...';if(qEl)qEl.innerHTML='';
+	try{const resp=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:'analyze_food',text:foodText})});const raw=await resp.text();let r;try{r=JSON.parse(raw)}catch(pe){detailEl.textContent='API异常: '+raw.substring(0,60);continue}if(r.error){detailEl.textContent='AI错误: '+r.error;continue}if(r.totalCal>0){calDisplay(calEl,detailEl,r,qEl);calCacheSet(name,foodText,r)}else{detailEl.textContent='AI返回0'}}catch(e){detailEl.textContent='网络异常: '+e.message}}
+	const jC=parseInt(document.getElementById('calJing')?.textContent)||0,eC=parseInt(document.getElementById('calEsther')?.textContent)||0,cmp=document.getElementById('calCompare');if(cmp&&jC&&eC){if(jC<eC)cmp.textContent='Jing 比 Esther 少摄入 '+(eC-jC)+' kcal 🥗';else if(eC<jC)cmp.textContent='Esther 比 Jing 少摄入 '+(jC-eC)+' kcal 🥗';else cmp.textContent='两人摄入热量相当 🤝'}
+	}catch(ex){console.error('renderCalories',ex)}
+	}
 
 function showToast(msg,type){try{const t=$('toast');t.textContent=msg;t.className='toast '+(type||'')+' show';setTimeout(function(){t.className='toast'},2000)}catch(e){}}
 
