@@ -1,5 +1,5 @@
 // Service Worker — Network First (优先网络, 离线时回归缓存)
-const CACHE = 'fit-challenge-v3';
+const CACHE = 'fit-challenge-v4';
 self.addEventListener('install', e => {
   self.skipWaiting();
 });
