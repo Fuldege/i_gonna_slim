@@ -175,7 +175,10 @@ if(allData.length===0)return;const today=new Date().toISOString().slice(0,10);
 for(const name of['Jing','Esther']){const calEl=document.getElementById('cal'+name),detailEl=document.getElementById('cal'+name+'Detail');if(!calEl||!detailEl)continue;
 const todayRecords=allData.filter(d=>d.name===name&&d.date===today);if(todayRecords.length===0){calEl.textContent='--';detailEl.textContent='(今天还没记录)';continue}
 const latest=todayRecords.sort((a,b)=>{const ta=a.id||a.time||'',tb=b.id||b.time||'';return String(tb).localeCompare(String(ta))})[0];
-const meals=[];if(latest.breakfast)meals.push(latest.breakfast);if(latest.lunch)meals.push(latest.lunch);if(latest.dinner)meals.push(latest.dinner);if(latest.afternoon)meals.push(latest.afternoon);const foodText=meals.join('；');
+
+const meals=[];if(latest.breakfast)meals.push('早餐：'+latest.breakfast);if(latest.lunch)meals.push('午餐：'+latest.lunch);if(latest.dinner)meals.push('晚餐：'+latest.dinner);if(latest.afternoon)meals.push('加餐：'+latest.afternoon);
+
+                                    
 if(meals.length===0){calEl.textContent='--';detailEl.textContent='(无饮食记录)';continue}
 // 本地DB先显示
 const local=parseFoodCalories(foodText);
