@@ -879,14 +879,40 @@ $('saveGoal').addEventListener('click', function() {
   } catch (e) {}
 });
 
-// ====== 数据获取 ======
+// ====== 数据获取（含本地缓存加速） ======
+var DATA_CACHE_KEY = 'fitData_cache';
+var DATA_CACHE_TIME = 10 * 60 * 1000;  // 10分钟缓存
+
+function loadFromCache() {
+  try {
+    var raw = localStorage.getItem(DATA_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) { return null; }
+}
+
+function saveToCache(data) {
+  try {
+    localStorage.setItem(DATA_CACHE_KEY, JSON.stringify({
+      time: Date.now(),
+      data: data
+    }));
+  } catch (e) {}
+}
+
 async function fetchData() {
   try {
     var res = await fetch(API_URL);
-    allData = await res.json();
-    if (!Array.isArray(allData)) allData = [];
+    var data = await res.json();
+    if (!Array.isArray(data)) data = [];
+    allData = data;
+    saveToCache(data);
     return allData;
-  } catch (e) { console.error(e); allData = []; return []; }
+  } catch (e) {
+    console.error(e);
+    allData = [];
+    return [];
+  }
 }
 
 function getLatestForPerson(name) {
@@ -1401,8 +1427,8 @@ $('save').addEventListener('click', async function() {
       saveBtn.disabled = false;
     }, 2000);
 
-    await fetchData();
-    renderOverview();
+    // 保存后立刻刷新缓存，确保下次打开是最新数据
+    fetchData().then(function() {});
   } catch (e) {
     $('saveText').textContent = '保存失败';
     $('save').disabled = false;
@@ -1414,10 +1440,21 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(function() {});
 }
 
-// ====== 启动 ======
-(async function init() {
-  await fetchData();
-  renderOverview();
+// ====== 启动（先秒显缓存，再后台刷新） ======
+(function init() {
+  // 1. 先读缓存立即渲染（秒开）
+  var cache = loadFromCache();
+  if (cache && cache.data && cache.data.length) {
+    allData = cache.data;
+    renderOverview();
+  }
+
+  // 2. 再判断要不要拉新数据
+  var needRefresh = !cache || (Date.now() - cache.time) > DATA_CACHE_TIME;
+
+  if (needRefresh) {
+    fetchData().then(function() { renderOverview(); });
+  }
 })();
 </script>
 </body>
